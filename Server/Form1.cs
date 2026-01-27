@@ -12,7 +12,7 @@ namespace Server
 {
     public partial class Form1 : Form
     {
-        string bindIp = "0.0.0.0"; // 0.0.0.0 = lắng nghe mọi IP
+        string bindIp = "0.0.0.0"; // đợi ip
         int bindPort = 9999;
         public Form1()
         {
@@ -33,7 +33,7 @@ namespace Server
         /// <param name="e"></param>
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)
         {
-            Disconnect();
+            Disconnect(); // đóng kết nối
         }
         /// <summary>
         /// gửi tin cho tất cả server
