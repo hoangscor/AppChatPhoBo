@@ -1,9 +1,10 @@
-﻿using System.Net;
-using System.Text;
-using System.Net.Sockets;
-//using System.Runtime.Serialization.Formatters.Binary;
+﻿//using System.Runtime.Serialization.Formatters.Binary;
 using System;
 using System.Collections.Generic;
+using System.Net;
+using System.Net.Sockets;
+using System.Reflection;
+using System.Text;
 using System.Threading;
 
 
@@ -11,9 +12,18 @@ namespace Server
 {
     public partial class Form1 : Form
     {
+        string bindIp = "0.0.0.0"; // 0.0.0.0 = lắng nghe mọi IP
+        int bindPort = 9999;
         public Form1()
         {
+            
             InitializeComponent();
+
+            // hỏi IP/Port khi mở server
+            bindIp = Prompt("ChatPhoBo Server", "Nhập IP bind (0.0.0.0 = tất cả):", "0.0.0.0");
+            string p = Prompt("ChatPhoBo Server", "Nhập Port:", "9999");
+            if (!int.TryParse(p, out bindPort)) bindPort = 9999;
+
             Connect();
         }
         /// <summary>
@@ -58,7 +68,14 @@ namespace Server
         {
             clientList = new List<Socket>();
             // IP: địa chỉ của server
-            IP = new IPEndPoint(IPAddress.Any, 9999); // đợi ip
+
+            IPAddress ipAddr;
+            if (!IPAddress.TryParse(bindIp, out ipAddr))
+                ipAddr = IPAddress.Any;
+
+            IP = new IPEndPoint(ipAddr, bindPort);
+
+
             server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
             server.Bind(IP); // gán địa chỉ ip
@@ -111,7 +128,7 @@ namespace Server
                         //}
 
                         // báo JOIN chỉ trong đúng room của nó (room rỗng => sảnh)
-                        BroadcastRoom(room, $"SYS|JOIN|{name}");
+                        
 
                     }
                 }
@@ -365,6 +382,39 @@ namespace Server
                     try { SendString(c, payload); } catch { }
                 }
             }
+        }
+        // them prompt
+        static string Prompt(string title, string label, string defaultValue)
+        {
+            using Form form = new Form();
+            using Label textLabel = new Label();
+            using TextBox textBox = new TextBox();
+            using Button buttonOk = new Button();
+            using Button buttonCancel = new Button();
+
+            form.Text = title;
+            textLabel.Text = label;
+            textBox.Width = 260;
+            textBox.Text = defaultValue;
+
+            buttonOk.Text = "OK";
+            buttonCancel.Text = "Cancel";
+            buttonOk.DialogResult = DialogResult.OK;
+            buttonCancel.DialogResult = DialogResult.Cancel;
+
+            textLabel.SetBounds(10, 10, 280, 20);
+            textBox.SetBounds(10, 35, 280, 25);
+            buttonOk.SetBounds(130, 70, 75, 25);
+            buttonCancel.SetBounds(215, 70, 75, 25);
+
+            form.ClientSize = new Size(300, 110);
+            form.Controls.AddRange(new Control[] { textLabel, textBox, buttonOk, buttonCancel });
+            form.AcceptButton = buttonOk;
+            form.CancelButton = buttonCancel;
+            form.FormBorderStyle = FormBorderStyle.FixedDialog;
+            form.StartPosition = FormStartPosition.CenterScreen;
+
+            return form.ShowDialog() == DialogResult.OK ? textBox.Text.Trim() : defaultValue;
         }
 
     }
