@@ -7,6 +7,9 @@ namespace server
 {
     public partial class Form1 : Form
     {
+        string serverIp = "192.168.3.110";
+        int serverPort = 9999;
+
         public Form1()
         {
             InitializeComponent();
@@ -18,10 +21,20 @@ namespace server
                 return;
             }
 
+            //txbName.Text = myName;
+            //this.Text = myName;
+
+            //Connect();
             txbName.Text = myName;
             this.Text = myName;
 
+            // hỏi IP/Port server
+            serverIp = Prompt("ChatPhoBo", "Nhập IP Server:", "192.168.3.110");
+            string p = Prompt("ChatPhoBo", "Nhập Port:", "9999");
+            if (!int.TryParse(p, out serverPort)) serverPort = 9999;
+
             Connect();
+
         }
         /// <summary>
         /// gửi tin đi
@@ -63,7 +76,8 @@ namespace server
         void Connect()
         {
             // IP: địa chỉ của server
-            IP = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 9999);
+            //IP = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 9999);
+            IP = new IPEndPoint(IPAddress.Parse(serverIp), serverPort);
             server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
             try // thử kết nối
@@ -253,6 +267,11 @@ namespace server
             form.StartPosition = FormStartPosition.CenterScreen;
 
             return form.ShowDialog() == DialogResult.OK ? textBox.Text.Trim() : "";
+        }
+        static string Prompt(string title, string label, string defaultValue)
+        {
+            string v = Prompt(title, label);
+            return string.IsNullOrWhiteSpace(v) ? defaultValue : v;
         }
 
 
