@@ -127,7 +127,7 @@ namespace server
                 {
                     string msg = ReceiveString(server);
 
-                    var p = msg.Split('|', 3);
+                    var p = msg.Split('|', 3);// tách thành 3 phần
                     if (p.Length >= 2 && p[0] == "SYS")
                     {
                         AddMessage($"[{p[1]}] {(p.Length == 3 ? p[2] : "")}");
