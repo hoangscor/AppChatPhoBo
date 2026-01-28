@@ -21,10 +21,7 @@ namespace server
                 return;
             }
 
-            //txbName.Text = myName;
-            //this.Text = myName;
 
-            //Connect();
             txbName.Text = myName;
             this.Text = myName;
 
@@ -34,6 +31,8 @@ namespace server
             if (!int.TryParse(p, out serverPort)) serverPort = 9999;
 
             Connect();
+
+            lstUsers.DoubleClick += lstUsers_DoubleClick;
 
         }
         /// <summary>
@@ -59,6 +58,13 @@ namespace server
                     text = input.Substring(sp + 1);
                 }
             }
+            // nếu nhắn riêng mà chưa được accept thì không cho gửi
+            if (to != "*" && !acceptedPeers.Contains(to))
+            {
+                AddMessage($"[SYS] {to} chưa chấp nhận bạn. Hãy double-click {to} trong danh sách Online để gửi yêu cầu.");
+                return;
+            }
+
 
             SendString(server, $"MSG|{to}|{text}");
             AddMessage($"Me -> {to}: {text}");
@@ -69,6 +75,9 @@ namespace server
         Socket server;
 
         string myName = ""; // tên của client
+
+        HashSet<string> acceptedPeers = new HashSet<string>(); // ai đã accept để nhắn riêng
+
 
         /// <summary>
         /// kết nối tới server
@@ -127,7 +136,66 @@ namespace server
                 {
                     string msg = ReceiveString(server);
 
-                    var p = msg.Split('|', 3);// tách thành 3 phần
+                    var p = msg.Split('|', 3);
+
+                    // (1) Server gửi danh sách online: SYS|LIST|a,b,c
+                    if (p.Length >= 2 && p[0] == "SYS" && p[1] == "LIST")
+                    {
+                        string csv = (p.Length == 3) ? p[2] : "";
+                        UpdateUserList(csv);
+                        continue;
+                    }
+
+                    // (2) Server chuyển yêu cầu nhắn riêng: REQ|fromName
+                    if (msg.StartsWith("REQ|"))
+                    {
+                        string from = msg.Split('|', 2).Length == 2 ? msg.Split('|', 2)[1] : "unknown";
+
+                        // phải show MessageBox trên UI thread
+                        BeginInvoke(new Action(() =>
+                        {
+                            var rs = MessageBox.Show(
+                                $"{from} muốn nhắn riêng với bạn. Chấp nhận?",
+                                "ChatPhoBo",
+                                MessageBoxButtons.YesNo,
+                                MessageBoxIcon.Question);
+
+                            if (rs == DialogResult.Yes)
+                            {
+                                SendString(server, $"RESP|{from}|ACCEPT");
+                                acceptedPeers.Add(from);
+                                AddMessage($"[SYS] Bạn đã chấp nhận {from}. Bây giờ có thể nhắn riêng.");
+                            }
+                            else
+                            {
+                                SendString(server, $"RESP|{from}|DECLINE");
+                                AddMessage($"[SYS] Bạn đã từ chối {from}.");
+                            }
+                        }));
+
+                        continue;
+                    }
+
+                    // (3) Server báo kết quả yêu cầu của mình: RESP|other|ACCEPT/DECLINE
+                    if (p.Length == 3 && p[0] == "RESP")
+                    {
+                        string other = p[1];
+                        string decision = p[2];
+
+                        if (decision == "ACCEPT")
+                        {
+                            acceptedPeers.Add(other);
+                            AddMessage($"[SYS] {other} đã CHẤP NHẬN. Bạn có thể nhắn riêng bằng @ {other}");
+                        }
+                        else
+                        {
+                            AddMessage($"[SYS] {other} đã TỪ CHỐI.");
+                        }
+
+                        continue;
+                    }
+
+                    // giữ logic cũ
                     if (p.Length >= 2 && p[0] == "SYS")
                     {
                         AddMessage($"[{p[1]}] {(p.Length == 3 ? p[2] : "")}");
@@ -140,6 +208,7 @@ namespace server
                     {
                         AddMessage(msg);
                     }
+
 
                 }
             }
@@ -161,7 +230,7 @@ namespace server
                 return;
             }
             lsvMessage.Items.Add(new ListViewItem() { Text = s });
-            txbMessage.Clear();
+            txbMessage.Clear(); // chỉ clear khi nhấn send thôi
         }
         /// <summary>
         /// phân mảnh
@@ -285,6 +354,50 @@ namespace server
         }
 
         private void txbName_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
+        }
+        private void lstUsers_DoubleClick(object sender, EventArgs e)
+        {
+            if (lstUsers.SelectedItem == null) return;
+
+            string toName = lstUsers.SelectedItem.ToString();
+            if (string.IsNullOrWhiteSpace(toName)) return;
+
+            // gửi yêu cầu nhắn riêng tới server
+            SendString(server, $"REQ|{toName}");
+            AddMessage($"[SYS] Đã gửi yêu cầu nhắn riêng tới {toName}. Chờ họ chấp nhận...");
+        }
+
+        // cập nhật danh sách online từ server (csv: a,b,c)
+        private void UpdateUserList(string csv)
+        {
+            if (InvokeRequired)
+            {
+                BeginInvoke(new Action<string>(UpdateUserList), csv);
+                return;
+            }
+
+            lstUsers.Items.Clear();
+
+            if (string.IsNullOrWhiteSpace(csv)) return;
+
+            var arr = csv.Split(',', StringSplitOptions.RemoveEmptyEntries);
+            foreach (var raw in arr)
+            {
+                var n = raw.Trim();
+                if (n.Length == 0) continue;
+                if (n == myName) continue; // không hiện chính mình
+                lstUsers.Items.Add(n);
+            }
+        }
+
+        private void lstUsers_SelectedIndexChanged(object sender, EventArgs e)
         {
 
         }

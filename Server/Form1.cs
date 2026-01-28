@@ -59,6 +59,8 @@ namespace Server
         Dictionary<Socket, string> socketToName = new Dictionary<Socket, string>(); // lưu tên người dùng theo socket
         Dictionary<string, Socket> nameToSocket = new Dictionary<string, Socket>();
         Dictionary<Socket, string> socketToRoom = new Dictionary<Socket, string>(); // lưu phòng theo socket
+        Dictionary<string, HashSet<string>> allow = new Dictionary<string, HashSet<string>>();
+        // allow[A] chứa danh sách người A được phép nhắn riêng (đã accept)
 
 
         /// <summary>
@@ -106,10 +108,14 @@ namespace Server
                             socketToName[client] = name;
                             nameToSocket[name] = client;
                             socketToRoom[client] = room;
+
+                            if (!allow.ContainsKey(name)) allow[name] = new HashSet<string>();
+
                         }
 
                         // báo JOIN chỉ cho những người trong cùng room (room="" là sảnh)
                         BroadcastRoom(room, $"SYS|JOIN|{name}");
+                        UpdateUserLists(); // cập nhật danh sách user cho tất cả
 
                         Thread receive = new Thread(Receive);
                         receive.IsBackground = true;
@@ -191,9 +197,88 @@ namespace Server
                             BroadcastRoom(oldRoom, $"SYS|LEAVE|{name}");
                             BroadcastRoom(newRoom, $"SYS|JOIN|{name}");
                         }
+                        UpdateUserLists();
 
                         continue; // xử lý xong đổi phòng thì quay lại nhận tiếp
                     }
+
+                    if (msg.StartsWith("REQ|"))
+                    {
+                        string toName = msg.Substring(4).Trim();
+
+                        string fromName;
+                        string reqFromRoom;
+                        lock (_lock)
+                        {
+                            fromName = socketToName.TryGetValue(client, out var n) ? n : "unknown";
+                            reqFromRoom = socketToRoom.TryGetValue(client, out var r) ? r : "";
+                        }
+
+                        Socket target = null;
+                        string targetRoom = "";
+                        lock (_lock)
+                        {
+                            nameToSocket.TryGetValue(toName, out target);
+                            if (target != null) socketToRoom.TryGetValue(target, out targetRoom);
+                        }
+
+                        if (target == null)
+                        {
+                            SendString(client, $"SYS|WARN|{toName} không online");
+                        }
+                        else if (targetRoom != reqFromRoom)
+                        {
+                            SendString(client, $"SYS|WARN|{toName} không cùng phòng");
+                        }
+                        else
+                        {
+                            SendString(target, $"REQ|{fromName}");
+                            SendString(client, $"SYS|INFO|Đã gửi yêu cầu tới {toName}");
+                        }
+
+                        continue;
+                    }
+
+                    if (msg.StartsWith("RESP|"))
+                    {
+                        var q = msg.Split('|', 3);
+                        if (q.Length < 3) continue;
+
+                        string requesterName = q[1];
+                        string decision = q[2]; // ACCEPT / DECLINE
+
+                        string responderName;
+                        lock (_lock)
+                            responderName = socketToName.TryGetValue(client, out var n) ? n : "unknown";
+
+                        Socket requester = null;
+                        lock (_lock) nameToSocket.TryGetValue(requesterName, out requester);
+
+                        if (requester == null)
+                        {
+                            SendString(client, $"SYS|WARN|{requesterName} không online");
+                            continue;
+                        }
+
+                        // báo kết quả cho người đã gửi yêu cầu
+                        SendString(requester, $"RESP|{responderName}|{decision}");
+
+                        // nếu accept => cho phép nhắn riêng 2 chiều
+                        if (decision == "ACCEPT")
+                        {
+                            lock (_lock)
+                            {
+                                if (!allow.ContainsKey(responderName)) allow[responderName] = new HashSet<string>();
+                                if (!allow.ContainsKey(requesterName)) allow[requesterName] = new HashSet<string>();
+
+                                allow[responderName].Add(requesterName);
+                                allow[requesterName].Add(responderName);
+                            }
+                        }
+
+                        continue;
+                    }
+
 
                     // ====== (2) Tin nhắn: MSG|to|text ======
                     var p = msg.Split('|', 3);
@@ -239,6 +324,16 @@ namespace Server
                         }
                         else
                         {
+                            bool ok = false;
+                            lock (_lock)
+                                ok = allow.TryGetValue(from, out var set) && set.Contains(to);
+
+                            if (!ok)
+                            {
+                                SendString(client, $"SYS|WARN|{to} chưa chấp nhận bạn");
+                                continue;
+                            }
+
                             SendString(target, $"FROM|{from}|{text}");
                         }
                     }
@@ -270,6 +365,15 @@ namespace Server
 
                 if (name != null)
                     BroadcastRoom(room, $"SYS|LEAVE|{name}");
+                if (name != null)
+                {
+                    lock (_lock)
+                    {
+                        allow.Remove(name);
+                    }
+                }
+                UpdateUserLists();
+
             }
         }
 
@@ -415,6 +519,38 @@ namespace Server
             form.StartPosition = FormStartPosition.CenterScreen;
 
             return form.ShowDialog() == DialogResult.OK ? textBox.Text.Trim() : defaultValue;
+        }
+        void SendUserList(Socket c)
+        {
+            string room = "";
+            List<string> names = new List<string>();
+
+            lock (_lock)
+            {
+                socketToRoom.TryGetValue(c, out room);
+
+                foreach (var s in clientList)
+                {
+                    string r = "";
+                    socketToRoom.TryGetValue(s, out r);
+
+                    if (r == room && socketToName.TryGetValue(s, out var n))
+                        names.Add(n);
+                }
+            }
+
+            SendString(c, $"SYS|LIST|{string.Join(",", names)}");
+        }
+
+        void UpdateUserLists()
+        {
+            Socket[] snapshot;
+            lock (_lock) snapshot = clientList.ToArray();
+
+            foreach (var c in snapshot)
+            {
+                try { SendUserList(c); } catch { }
+            }
         }
 
     }
