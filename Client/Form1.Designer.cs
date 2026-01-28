@@ -34,6 +34,8 @@
             txbName = new TextBox();
             txbRoomId = new TextBox();
             btnJoinRoom = new Button();
+            lblTen = new Label();
+            lblRoom = new Label();
             SuspendLayout();
             // 
             // lsvMessage
@@ -66,23 +68,25 @@
             // 
             // txbName
             // 
-            txbName.Location = new Point(777, 23);
+            txbName.Location = new Point(777, 67);
             txbName.Name = "txbName";
             txbName.ReadOnly = true;
             txbName.Size = new Size(125, 27);
             txbName.TabIndex = 3;
+            txbName.TextChanged += txbName_TextChanged;
             // 
             // txbRoomId
             // 
-            txbRoomId.Location = new Point(777, 65);
+            txbRoomId.Location = new Point(777, 120);
             txbRoomId.Name = "txbRoomId";
             txbRoomId.Size = new Size(125, 27);
             txbRoomId.TabIndex = 4;
+            txbRoomId.TextChanged += txbRoomId_TextChanged;
             // 
             // btnJoinRoom
             // 
             btnJoinRoom.BackColor = SystemColors.AppWorkspace;
-            btnJoinRoom.Location = new Point(795, 114);
+            btnJoinRoom.Location = new Point(795, 153);
             btnJoinRoom.Name = "btnJoinRoom";
             btnJoinRoom.Size = new Size(94, 29);
             btnJoinRoom.TabIndex = 5;
@@ -90,12 +94,33 @@
             btnJoinRoom.UseVisualStyleBackColor = false;
             btnJoinRoom.Click += btnJoinRoom_Click;
             // 
+            // lblTen
+            // 
+            lblTen.AutoSize = true;
+            lblTen.Location = new Point(777, 44);
+            lblTen.Name = "lblTen";
+            lblTen.Size = new Size(39, 20);
+            lblTen.TabIndex = 6;
+            lblTen.Text = "Tên: ";
+            lblTen.Click += label1_Click;
+            // 
+            // lblRoom
+            // 
+            lblRoom.AutoSize = true;
+            lblRoom.Location = new Point(777, 97);
+            lblRoom.Name = "lblRoom";
+            lblRoom.Size = new Size(118, 20);
+            lblRoom.TabIndex = 7;
+            lblRoom.Text = "Nhập ID phòng: ";
+            // 
             // Form1
             // 
             AcceptButton = btnSend;
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(901, 495);
+            Controls.Add(lblRoom);
+            Controls.Add(lblTen);
             Controls.Add(btnJoinRoom);
             Controls.Add(txbRoomId);
             Controls.Add(txbName);
@@ -119,5 +144,7 @@
         private TextBox txbName;
         private TextBox txbRoomId;
         private Button btnJoinRoom;
+        private Label lblTen;
+        private Label lblRoom;
     }
 }

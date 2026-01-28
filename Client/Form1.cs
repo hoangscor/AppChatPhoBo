@@ -85,7 +85,7 @@ namespace server
                 server.Connect(IP); // kết nối tới server
                 SendString(server, $"HELLO|{myName}"); // gửi tên lên server
 
-              
+
 
             }
             catch
@@ -274,7 +274,20 @@ namespace server
             return string.IsNullOrWhiteSpace(v) ? defaultValue : v;
         }
 
+        private void txbRoomId_TextChanged(object sender, EventArgs e)
+        {
 
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void txbName_TextChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 
 }
