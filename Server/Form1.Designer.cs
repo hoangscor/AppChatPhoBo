@@ -61,6 +61,7 @@
             lsvMessage.TabIndex = 3;
             lsvMessage.UseCompatibleStateImageBehavior = false;
             lsvMessage.View = View.List;
+            lsvMessage.SelectedIndexChanged += lsvMessage_SelectedIndexChanged;
             // 
             // Form1
             // 

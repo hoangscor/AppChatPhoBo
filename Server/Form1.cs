@@ -16,7 +16,7 @@ namespace Server
         int bindPort = 9999;
         public Form1()
         {
-            
+
             InitializeComponent();
 
             // hỏi IP/Port khi mở server
@@ -83,7 +83,8 @@ namespace Server
             server.Bind(IP); // gán địa chỉ ip
             server.Listen(100); // đợi 100 đứa trong hàng chờ
 
-            Thread Listen = new Thread(() => {
+            Thread Listen = new Thread(() =>
+            {
                 try // kết nối n thằng client 1 thằng đóng lại ?
                 {
                     while (true)
@@ -122,7 +123,7 @@ namespace Server
                         receive.Start(client);
 
 
-                       
+
 
                         //string room = ""; // mặc định sảnh chung
                         //lock (_lock)
@@ -134,11 +135,12 @@ namespace Server
                         //}
 
                         // báo JOIN chỉ trong đúng room của nó (room rỗng => sảnh)
-                        
+
 
                     }
                 }
-                catch {
+                catch
+                {
                     //IP = new IPEndPoint(IPAddress.Any, 9999); // đợi ip
                     //server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.IP);
                 } // xử lý khi n thằng client đóng kết nối
@@ -553,5 +555,9 @@ namespace Server
             }
         }
 
+        private void lsvMessage_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }

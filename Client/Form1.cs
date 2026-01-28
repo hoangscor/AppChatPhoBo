@@ -2,17 +2,37 @@
 using System.Net.Sockets;
 //using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
+using System.Drawing;
+using System.Reflection;
+
 
 namespace server
 {
     public partial class Form1 : Form
     {
+        // ===== Modern UI / Animation =====
+        private System.Windows.Forms.Timer _fadeTimer;
+        private readonly Dictionary<Control, System.Windows.Forms.Timer> _anim = new();
+
+        private readonly Color _bg = Color.FromArgb(245, 246, 250);      // nền app
+        private readonly Color _card = Color.White;                      // nền control
+        private readonly Color _primary = Color.FromArgb(13, 110, 253);  // xanh
+        private readonly Color _primaryHover = Color.FromArgb(11, 94, 215);
+        private readonly Color _success = Color.FromArgb(25, 135, 84);   // xanh lá
+        private readonly Color _successHover = Color.FromArgb(20, 108, 67);
+
+
         string serverIp = "192.168.3.110";
         int serverPort = 9999;
 
         public Form1()
         {
             InitializeComponent();
+
+            ApplyModernUi();
+            this.Opacity = 0;
+            this.Shown += (_, __) => StartFadeIn();
+
 
             myName = Prompt("Nhập tên", "Tên của bạn:");
             if (string.IsNullOrWhiteSpace(myName))
@@ -229,8 +249,20 @@ namespace server
                 BeginInvoke(new Action<string>(AddMessage), s);
                 return;
             }
-            lsvMessage.Items.Add(new ListViewItem() { Text = s });
-            txbMessage.Clear(); // chỉ clear khi nhấn send thôi
+
+            var item = new ListViewItem() { Text = s };
+            lsvMessage.Items.Add(item);
+
+            // tự cuộn xuống dòng cuối
+            if (lsvMessage.Items.Count > 0)
+                lsvMessage.EnsureVisible(lsvMessage.Items.Count - 1);
+
+            // hiệu ứng nháy nhẹ dòng mới
+            FlashItem(item);
+
+            // LƯU Ý: bạn đang Clear ở đây => nhận tin cũng bị clear ô nhập
+            // Nếu bạn chỉ muốn clear khi nhấn Send, hãy comment dòng dưới:
+            txbMessage.Clear();
         }
         /// <summary>
         /// phân mảnh
@@ -401,6 +433,167 @@ namespace server
         {
 
         }
+        // ui nha 
+        // ===== Modern UI helpers =====
+        private void ApplyModernUi()
+        {
+            // Form
+            this.BackColor = _bg;
+            this.Font = new Font("Segoe UI", 10f, FontStyle.Regular);
+            this.StartPosition = FormStartPosition.CenterScreen;
+
+            // giảm giật
+            EnableDoubleBuffer(lsvMessage);
+
+            // ListView chat
+            lsvMessage.BackColor = _card;
+            lsvMessage.ForeColor = Color.FromArgb(33, 37, 41);
+            lsvMessage.FullRowSelect = true;
+            lsvMessage.HideSelection = false;
+
+            // Textbox message
+            txbMessage.BackColor = _card;
+            txbMessage.ForeColor = Color.FromArgb(33, 37, 41);
+
+            // Name/Room (nếu có)
+            if (txbName != null)
+            {
+                txbName.ReadOnly = true;
+                txbName.BackColor = _card;
+            }
+            if (txbRoomId != null)
+            {
+                txbRoomId.BackColor = _card;
+            }
+
+            // List users (nếu có)
+            if (lstUsers != null)
+            {
+                lstUsers.BackColor = _card;
+                lstUsers.ForeColor = Color.FromArgb(33, 37, 41);
+                lstUsers.IntegralHeight = false;
+            }
+
+            // Buttons
+            StyleButton(btnSend, _primary, _primaryHover);
+            if (btnJoinRoom != null) StyleButton(btnJoinRoom, _success, _successHover);
+        }
+
+        private void StartFadeIn()
+        {
+            _fadeTimer?.Stop();
+            _fadeTimer?.Dispose();
+
+            this.Opacity = 0;
+            _fadeTimer = new System.Windows.Forms.Timer { Interval = 15 };
+            _fadeTimer.Tick += (_, __) =>
+            {
+                this.Opacity += 0.08;
+                if (this.Opacity >= 1)
+                {
+                    this.Opacity = 1;
+                    _fadeTimer.Stop();
+                    _fadeTimer.Dispose();
+                }
+            };
+            _fadeTimer.Start();
+        }
+
+        private void StyleButton(Button btn, Color normal, Color hover)
+        {
+            if (btn == null) return;
+
+            btn.FlatStyle = FlatStyle.Flat;
+            btn.FlatAppearance.BorderSize = 0;
+            btn.BackColor = normal;
+            btn.ForeColor = Color.White;
+
+            btn.MouseEnter += (_, __) => AnimateBackColor(btn, hover, 120);
+            btn.MouseLeave += (_, __) => AnimateBackColor(btn, normal, 160);
+        }
+
+        private void FlashItem(ListViewItem item)
+        {
+            // nháy nhẹ vàng -> về màu nền listview
+            Color from = Color.FromArgb(255, 249, 196);
+            Color to = lsvMessage.BackColor;
+
+            item.BackColor = from;
+
+            int steps = 12;
+            int cur = 0;
+
+            var t = new System.Windows.Forms.Timer { Interval = 25 };
+            t.Tick += (_, __) =>
+            {
+                cur++;
+                double k = cur / (double)steps;
+                item.BackColor = Lerp(from, to, k);
+
+                if (cur >= steps)
+                {
+                    item.BackColor = to;
+                    t.Stop();
+                    t.Dispose();
+                }
+            };
+            t.Start();
+        }
+
+        private void AnimateBackColor(Control c, Color target, int durationMs)
+        {
+            if (c == null) return;
+
+            // stop animation cũ nếu có
+            if (_anim.TryGetValue(c, out var old))
+            {
+                old.Stop();
+                old.Dispose();
+                _anim.Remove(c);
+            }
+
+            Color start = c.BackColor;
+            int interval = 15;
+            int steps = Math.Max(1, durationMs / interval);
+            int cur = 0;
+
+            var t = new System.Windows.Forms.Timer { Interval = interval };
+            _anim[c] = t;
+
+            t.Tick += (_, __) =>
+            {
+                cur++;
+                double k = cur / (double)steps;
+                c.BackColor = Lerp(start, target, k);
+
+                if (cur >= steps)
+                {
+                    c.BackColor = target;
+                    t.Stop();
+                    t.Dispose();
+                    _anim.Remove(c);
+                }
+            };
+
+            t.Start();
+        }
+
+        private static Color Lerp(Color a, Color b, double t)
+        {
+            t = Math.Max(0, Math.Min(1, t));
+            int r = (int)(a.R + (b.R - a.R) * t);
+            int g = (int)(a.G + (b.G - a.G) * t);
+            int bl = (int)(a.B + (b.B - a.B) * t);
+            return Color.FromArgb(r, g, bl);
+        }
+
+        private static void EnableDoubleBuffer(Control c)
+        {
+            // bật DoubleBuffered cho control (ListView không public)
+            typeof(Control).GetProperty("DoubleBuffered", BindingFlags.Instance | BindingFlags.NonPublic)
+                ?.SetValue(c, true, null);
+        }
+
     }
 
 }
