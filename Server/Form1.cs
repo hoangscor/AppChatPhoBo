@@ -6,6 +6,8 @@ using System.Net.Sockets;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using System.Drawing;
+
 
 
 namespace Server
@@ -14,10 +16,26 @@ namespace Server
     {
         string bindIp = "0.0.0.0"; // đợi ip
         int bindPort = 9999;
+
+        // ===== Modern UI / Animation (Pastel Blue) =====
+        private System.Windows.Forms.Timer _fadeTimer;
+        private readonly Dictionary<Control, System.Windows.Forms.Timer> _anim = new();
+
+        private readonly Color _bg = Color.FromArgb(244, 248, 255);        // nền xanh nhạt
+        private readonly Color _card = Color.White;                         // nền control
+        private readonly Color _primary = Color.FromArgb(168, 210, 255);     // pastel blue (normal)
+        private readonly Color _primaryHover = Color.FromArgb(140, 195, 255); // pastel blue (hover)
+        private readonly Color _text = Color.FromArgb(33, 37, 41);
+
+
         public Form1()
         {
 
             InitializeComponent();
+
+            ApplyModernUi();
+            this.Opacity = 0;
+            this.Shown += (_, __) => StartFadeIn();
 
             // hỏi IP/Port khi mở server
             bindIp = Prompt("ChatPhoBo Server", "Nhập IP bind (0.0.0.0 = tất cả):", "0.0.0.0");
@@ -390,7 +408,16 @@ namespace Server
                 BeginInvoke(new Action<string>(AddMessage), s);
                 return;
             }
-            lsvMessage.Items.Add(new ListViewItem() { Text = s });
+
+            var item = new ListViewItem() { Text = s };
+            lsvMessage.Items.Add(item);
+
+            // tự cuộn xuống cuối
+            if (lsvMessage.Items.Count > 0)
+                lsvMessage.EnsureVisible(lsvMessage.Items.Count - 1);
+
+            // nháy nhẹ dòng mới
+            FlashItem(item);
         }
 
         /// <summary>
@@ -559,5 +586,146 @@ namespace Server
         {
 
         }
+
+        // ===== Modern UI helpers (Server) =====
+        private void ApplyModernUi()
+        {
+            // Form
+            this.BackColor = _bg;
+            this.Font = new Font("Segoe UI", 10f, FontStyle.Regular);
+            this.StartPosition = FormStartPosition.CenterScreen;
+            this.Text = "ChatPhoBo Server";
+
+            // giảm giật
+            EnableDoubleBuffer(lsvMessage);
+
+            // ListView log
+            lsvMessage.BackColor = _card;
+            lsvMessage.ForeColor = _text;
+            lsvMessage.FullRowSelect = true;
+            lsvMessage.HideSelection = false;
+
+            // Textbox message
+            txbMessage.BackColor = _card;
+            txbMessage.ForeColor = _text;
+
+            // Button send: pastel blue
+            StyleButton(btnSend, _primary, _primaryHover);
+        }
+
+        private void StartFadeIn()
+        {
+            _fadeTimer?.Stop();
+            _fadeTimer?.Dispose();
+
+            this.Opacity = 0;
+            _fadeTimer = new System.Windows.Forms.Timer { Interval = 15 };
+            _fadeTimer.Tick += (_, __) =>
+            {
+                this.Opacity += 0.08;
+                if (this.Opacity >= 1)
+                {
+                    this.Opacity = 1;
+                    _fadeTimer.Stop();
+                    _fadeTimer.Dispose();
+                }
+            };
+            _fadeTimer.Start();
+        }
+
+        private void StyleButton(Button btn, Color normal, Color hover)
+        {
+            if (btn == null) return;
+
+            btn.FlatStyle = FlatStyle.Flat;
+            btn.FlatAppearance.BorderSize = 0;
+            btn.BackColor = normal;
+            btn.ForeColor = Color.FromArgb(15, 30, 60); // chữ xanh đậm cho hợp pastel
+
+            btn.MouseEnter += (_, __) => AnimateBackColor(btn, hover, 120);
+            btn.MouseLeave += (_, __) => AnimateBackColor(btn, normal, 160);
+        }
+
+        private void FlashItem(ListViewItem item)
+        {
+            // nháy nhẹ xanh rất nhạt -> về nền listview
+            Color from = Color.FromArgb(225, 240, 255);
+            Color to = lsvMessage.BackColor;
+
+            item.BackColor = from;
+
+            int steps = 12;
+            int cur = 0;
+
+            var t = new System.Windows.Forms.Timer { Interval = 25 };
+            t.Tick += (_, __) =>
+            {
+                cur++;
+                double k = cur / (double)steps;
+                item.BackColor = Lerp(from, to, k);
+
+                if (cur >= steps)
+                {
+                    item.BackColor = to;
+                    t.Stop();
+                    t.Dispose();
+                }
+            };
+            t.Start();
+        }
+
+        private void AnimateBackColor(Control c, Color target, int durationMs)
+        {
+            if (c == null) return;
+
+            if (_anim.TryGetValue(c, out var old))
+            {
+                old.Stop();
+                old.Dispose();
+                _anim.Remove(c);
+            }
+
+            Color start = c.BackColor;
+            int interval = 15;
+            int steps = Math.Max(1, durationMs / interval);
+            int cur = 0;
+
+            var t = new System.Windows.Forms.Timer { Interval = interval };
+            _anim[c] = t;
+
+            t.Tick += (_, __) =>
+            {
+                cur++;
+                double k = cur / (double)steps;
+                c.BackColor = Lerp(start, target, k);
+
+                if (cur >= steps)
+                {
+                    c.BackColor = target;
+                    t.Stop();
+                    t.Dispose();
+                    _anim.Remove(c);
+                }
+            };
+
+            t.Start();
+        }
+
+        private static Color Lerp(Color a, Color b, double t)
+        {
+            t = Math.Max(0, Math.Min(1, t));
+            int r = (int)(a.R + (b.R - a.R) * t);
+            int g = (int)(a.G + (b.G - a.G) * t);
+            int bl = (int)(a.B + (b.B - a.B) * t);
+            return Color.FromArgb(r, g, bl);
+        }
+
+        private static void EnableDoubleBuffer(Control c)
+        {
+            typeof(Control).GetProperty("DoubleBuffered", BindingFlags.Instance | BindingFlags.NonPublic)
+                ?.SetValue(c, true, null);
+        }
+
     }
+
 }
