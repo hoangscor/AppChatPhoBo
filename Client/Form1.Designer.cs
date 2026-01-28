@@ -36,13 +36,14 @@
             btnJoinRoom = new Button();
             lblTen = new Label();
             lblRoom = new Label();
+            lstUsers = new ListBox();
             SuspendLayout();
             // 
             // lsvMessage
             // 
-            lsvMessage.Location = new Point(38, 23);
+            lsvMessage.Location = new Point(38, 67);
             lsvMessage.Name = "lsvMessage";
-            lsvMessage.Size = new Size(733, 341);
+            lsvMessage.Size = new Size(733, 297);
             lsvMessage.TabIndex = 0;
             lsvMessage.UseCompatibleStateImageBehavior = false;
             lsvMessage.View = View.List;
@@ -113,12 +114,22 @@
             lblRoom.TabIndex = 7;
             lblRoom.Text = "Nhập ID phòng: ";
             // 
+            // lstUsers
+            // 
+            lstUsers.FormattingEnabled = true;
+            lstUsers.Location = new Point(953, 67);
+            lstUsers.Name = "lstUsers";
+            lstUsers.Size = new Size(336, 304);
+            lstUsers.TabIndex = 8;
+            lstUsers.SelectedIndexChanged += lstUsers_SelectedIndexChanged;
+            // 
             // Form1
             // 
             AcceptButton = btnSend;
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(901, 495);
+            ClientSize = new Size(1350, 495);
+            Controls.Add(lstUsers);
             Controls.Add(lblRoom);
             Controls.Add(lblTen);
             Controls.Add(btnJoinRoom);
@@ -131,6 +142,7 @@
             Text = "client";
             TransparencyKey = Color.Maroon;
             FormClosed += Form1_FormClosed;
+            Load += Form1_Load;
             ResumeLayout(false);
             PerformLayout();
         }
@@ -146,5 +158,6 @@
         private Button btnJoinRoom;
         private Label lblTen;
         private Label lblRoom;
+        private ListBox lstUsers;
     }
 }
