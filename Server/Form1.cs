@@ -64,7 +64,7 @@ namespace Server
             {
                 Send(item);
             }
-            AddMessage(txbMessage.Text);
+            AddMessage($"Server: {txbMessage.Text}");
             txbMessage.Clear();
 
         }
@@ -133,6 +133,8 @@ namespace Server
                         }
 
                         // báo JOIN chỉ cho những người trong cùng room (room="" là sảnh)
+                        AddMessage($"[SYS] {name} đã kết nối (room='{room}')");
+
                         BroadcastRoom(room, $"SYS|JOIN|{name}");
                         UpdateUserLists(); // cập nhật danh sách user cho tất cả
 
@@ -216,7 +218,10 @@ namespace Server
                         {
                             BroadcastRoom(oldRoom, $"SYS|LEAVE|{name}");
                             BroadcastRoom(newRoom, $"SYS|JOIN|{name}");
+                            AddMessage($"[SYS] {name} chuyển phòng: '{oldRoom}' -> '{newRoom}'");
+
                         }
+
                         UpdateUserLists();
 
                         continue; // xử lý xong đổi phòng thì quay lại nhận tiếp
@@ -254,6 +259,8 @@ namespace Server
                         {
                             SendString(target, $"REQ|{fromName}");
                             SendString(client, $"SYS|INFO|Đã gửi yêu cầu tới {toName}");
+                            AddMessage($"[REQ] {fromName} yêu cầu nhắn riêng với {toName} (room='{reqFromRoom}')");
+
                         }
 
                         continue;
@@ -282,6 +289,7 @@ namespace Server
 
                         // báo kết quả cho người đã gửi yêu cầu
                         SendString(requester, $"RESP|{responderName}|{decision}");
+                        AddMessage($"[RESP] {responderName} -> {requesterName}: {decision}");
 
                         // nếu accept => cho phép nhắn riêng 2 chiều
                         if (decision == "ACCEPT")
@@ -293,6 +301,8 @@ namespace Server
 
                                 allow[responderName].Add(requesterName);
                                 allow[requesterName].Add(responderName);
+                                AddMessage($"[PM-READY] {responderName} <-> {requesterName} đã được phép nhắn riêng");
+
                             }
                         }
 
@@ -358,7 +368,11 @@ namespace Server
                         }
                     }
 
-                    AddMessage($"[{from}@{fromRoom} -> {to}] {text}");
+                    if (to == "*")
+                        AddMessage($"[ROOM:{fromRoom}] {from}: {text}");
+                    else
+                        AddMessage($"[PM][ROOM:{fromRoom}] {from} -> {to}: {text}");
+
                 }
             }
             catch
@@ -385,6 +399,7 @@ namespace Server
 
                 if (name != null)
                     BroadcastRoom(room, $"SYS|LEAVE|{name}");
+                    AddMessage($"[SYS] {name} đã ngắt kết nối (room='{room}')");
                 if (name != null)
                 {
                     lock (_lock)
