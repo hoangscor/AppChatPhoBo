@@ -79,6 +79,7 @@ namespace Server
         Dictionary<Socket, string> socketToRoom = new Dictionary<Socket, string>(); // lưu phòng theo socket
         Dictionary<string, HashSet<string>> allow = new Dictionary<string, HashSet<string>>();
         // allow[A] chứa danh sách người A được phép nhắn riêng (đã accept)
+        HashSet<string> bestPairs = new HashSet<string>(); // tránh log trùng
 
 
         /// <summary>
@@ -341,6 +342,64 @@ namespace Server
                         if (target != null)
                         {
                             try { SendString(target, $"SYS|PMEND|{fromName},{seconds}"); } catch { }
+                        }
+
+                        continue;
+                    }
+
+
+                    /// ====== (4) Yêu cầu bạn thân: BFRIEND|other ======
+                    // ====== (FRIEND) Client báo đã thành bạn thân ======
+                    if (msg.StartsWith("FRIEND|"))
+                    {
+                        var f = msg.Split('|', 3);
+                        if (f.Length == 3)
+                        {
+                            string other = f[1].Trim();
+                            string tag = f[2].Trim(); // BEST
+
+                            string fromName;
+                            string roomFrom;
+                            lock (_lock)
+                            {
+                                fromName = socketToName.TryGetValue(client, out var n) ? n : "unknown";
+                                roomFrom = socketToRoom.TryGetValue(client, out var r) ? r : "";
+                            }
+
+                            // chỉ chấp nhận nếu 2 bên đang allow (đã accept)
+                            bool ok = false;
+                            lock (_lock)
+                            {
+                                ok = allow.TryGetValue(fromName, out var set) && set.Contains(other);
+                            }
+
+                            if (ok && tag == "BEST")
+                            {
+                                // tạo key theo thứ tự abc để tránh trùng A|B và B|A
+                                string a = fromName, b = other;
+
+                                // gửi đồng bộ về cả 2 client để cả 2 đều hiện "bạn thân"
+                                Socket otherSock = null;
+                                lock (_lock) nameToSocket.TryGetValue(other, out otherSock);
+
+                                try { SendString(client, $"SYS|BEST|{other}"); } catch { }
+                                if (otherSock != null)
+                                {
+                                    try { SendString(otherSock, $"SYS|BEST|{fromName}"); } catch { }
+                                }
+
+
+                                string key = string.CompareOrdinal(a, b) < 0 ? $"{a}|{b}" : $"{b}|{a}";
+
+                                lock (_lock)
+                                {
+                                    if (!bestPairs.Contains(key))
+                                    {
+                                        bestPairs.Add(key);
+                                        AddMessage($"[SYS] {a} và {b} đã trở thành bạn thân");
+                                    }
+                                }
+                            }
                         }
 
                         continue;

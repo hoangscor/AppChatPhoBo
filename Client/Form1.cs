@@ -21,6 +21,14 @@ namespace server
         private readonly Color _success = Color.FromArgb(25, 135, 84);   // xanh lá
         private readonly Color _successHover = Color.FromArgb(20, 108, 67);
 
+        // ===== FRIEND STATUS (bạn thường / bạn thân) =====
+        enum FriendLevel { None, Thuong, Than }
+
+        Dictionary<string, FriendLevel> friendLevel = new Dictionary<string, FriendLevel>();
+        Dictionary<string, DateTime> privateStartedAt = new Dictionary<string, DateTime>(); // thời điểm bắt đầu nhắn riêng
+        HashSet<string> bestNotified = new HashSet<string>(); // để không gửi FRIEND|... nhiều lần
+
+        System.Windows.Forms.Timer friendTimer;
 
         string serverIp = "192.168.3.110";
         int serverPort = 9999;
@@ -62,6 +70,8 @@ namespace server
             if (!int.TryParse(p, out serverPort)) serverPort = 9999;
 
             Connect();
+
+            InitFriendTimer(); //khởi tạo timer bạn thân     
 
             lstUsers.DoubleClick += lstUsers_DoubleClick;
 
@@ -200,14 +210,44 @@ namespace server
                             {
                                 StopPrivateChat(notifyServer: false);
                             }
+                            // hủy tư cách bạn thân + hủy quyền nhắn riêng local
+                            friendLevel.Remove(other);
+                            privateStartedAt.Remove(other);
+                            bestNotified.Remove(other);
+                            RefreshUserListText();
 
                             // vì server đã remove allow => client cũng remove để lần sau phải request lại
                             acceptedPeers.Remove(other);
+
                         }));
 
                         continue;
                     }
 
+                    // (1.6) Server đồng bộ bạn thân: SYS|BEST|other
+                    if (p.Length >= 2 && p[0] == "SYS" && p[1] == "BEST")
+                    {
+                        string other = (p.Length == 3) ? p[2].Trim() : "";
+                        if (!string.IsNullOrWhiteSpace(other))
+                        {
+                            BeginInvoke(new Action(() =>
+                            {
+                                friendLevel[other] = FriendLevel.Than;
+                                RefreshUserListText();
+
+                                if (privatePeer == other)
+                                {
+                                    lsvPrivate.Items.Add(new ListViewItem($"[SYS] Bạn đã trở thành bạn thân với {other}!"));
+                                    lsvPrivate.EnsureVisible(lsvPrivate.Items.Count - 1);
+                                }
+                                else
+                                {
+                                    AddMessage($"[SYS] Bạn đã trở thành bạn thân với {other}! (PM)");
+                                }
+                            }));
+                        }
+                        continue;
+                    }
 
                     // (2) Server chuyển yêu cầu nhắn riêng: REQ|fromName
                     if (msg.StartsWith("REQ|"))
@@ -227,6 +267,8 @@ namespace server
                             {
                                 SendString(server, $"RESP|{from}|ACCEPT");
                                 acceptedPeers.Add(from);
+
+                                StartPrivateSession(from);// đánh dấu bắt đầu phiên nhắn riêng
                                 StartPrivateChat(from); // tự chọn peer
 
                                 AddMessage($"[SYS] Bạn đã chấp nhận {from}. Bây giờ có thể nhắn riêng.");
@@ -250,12 +292,13 @@ namespace server
                         if (decision == "ACCEPT")
                         {
                             acceptedPeers.Add(other);
+
                             BeginInvoke(new Action(() =>
                             {
                                 // tự chọn người đó làm privatePeer và bắt đầu đồng hồ
                                 StartPrivateChat(other);
                             }));
-
+                            StartPrivateSession(other);
                             AddMessage($"[SYS] {other} đã CHẤP NHẬN. Bạn có thể nhắn riêng bằng @ {other}");
                         }
                         else
@@ -478,7 +521,10 @@ namespace server
         {
             if (lstUsers.SelectedItem == null) return;
 
-            string toName = lstUsers.SelectedItem.ToString();
+            //string toName = lstUsers.SelectedItem.ToString();
+            string toName = ExtractUserName(lstUsers.SelectedItem.ToString());// lấy tên thật
+
+
             if (string.IsNullOrWhiteSpace(toName)) return;
 
             // gửi yêu cầu nhắn riêng tới server
@@ -505,7 +551,8 @@ namespace server
                 var n = raw.Trim();
                 if (n.Length == 0) continue;
                 if (n == myName) continue; // không hiện chính mình
-                lstUsers.Items.Add(n);
+                lstUsers.Items.Add(RenderUser(n));
+
             }
         }
 
@@ -513,7 +560,7 @@ namespace server
         {
             if (lstUsers.SelectedItem == null) return;
 
-            string name = lstUsers.SelectedItem.ToString();
+            string name = ExtractUserName(lstUsers.SelectedItem.ToString()); // lấy tên thật
             if (string.IsNullOrWhiteSpace(name)) return;
 
             privatePeer = name;
@@ -763,6 +810,13 @@ namespace server
 
             string peer = privatePeer; // giữ lại trước khi clear
 
+            // HỦY tư cách bạn thân + hủy quyền nhắn riêng local
+            friendLevel.Remove(peer);
+            privateStartedAt.Remove(peer);
+            bestNotified.Remove(peer);
+            acceptedPeers.Remove(peer);
+            RefreshUserListText();
+
             // reset UI
             privatePeer = "";
             lblPrivateWith.Text = "Chat riêng: (chưa chọn)";
@@ -777,6 +831,138 @@ namespace server
             {
                 SendString(server, $"PMEND|{peer}|{seconds}");
             }
+        }
+        /// <summary>
+        /// Phần của bạn thân
+        /// </summary>
+        /// <param name="display"></param>
+        /// <returns></returns>
+        // Lấy tên thật từ item hiển thị (vd: "Hoang (bạn thân)" -> "Hoang")
+        private string ExtractUserName(string display)
+        {
+            if (string.IsNullOrWhiteSpace(display)) return "";
+            int k = display.IndexOf(" (");
+            return (k >= 0 ? display.Substring(0, k) : display).Trim();
+        }
+
+        // Render lại cách hiển thị tên trong lstUsers
+        private string RenderUser(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name)) return name;
+
+            if (!friendLevel.TryGetValue(name, out var lv)) lv = FriendLevel.None;
+
+            if (lv == FriendLevel.Thuong) return $"{name} (bạn thường)";
+            if (lv == FriendLevel.Than) return $"{name} (bạn thân)";
+            return name;
+        }
+
+        // Gọi sau khi thay đổi friendLevel để cập nhật lstUsers
+        private void RefreshUserListText()
+        {
+            if (InvokeRequired)
+            {
+                BeginInvoke(new Action(RefreshUserListText));
+                return;
+            }
+
+            // Lưu lại danh sách tên thật đang có
+            var names = new List<string>();
+            foreach (var it in lstUsers.Items)
+                names.Add(ExtractUserName(it.ToString()));
+
+            lstUsers.Items.Clear();
+            foreach (var n in names)
+                lstUsers.Items.Add(RenderUser(n));
+        }
+
+        // Bắt đầu “phiên nhắn riêng” với peer => hiện bạn thường + chạy timer đếm 10s
+        private void StartPrivateSession(string peer)
+        {
+            if (string.IsNullOrWhiteSpace(peer)) return;
+
+            // BẮT BUỘC: đưa về UI thread để WinForms Timer chạy đúng
+            if (InvokeRequired)
+            {
+                BeginInvoke(new Action<string>(StartPrivateSession), peer);
+                return;
+            }
+
+            // vừa accept => mặc định là "bạn thường"
+            friendLevel[peer] = FriendLevel.Thuong;
+
+            // đánh dấu thời điểm bắt đầu
+            privateStartedAt[peer] = DateTime.Now;
+
+            RefreshUserListText();
+
+            // bật timer
+            friendTimer?.Start();
+        }
+
+        // Khi kết thúc chat riêng (nếu bạn có nút X đóng chat riêng, thì gọi hàm này)
+        private void StopPrivateSession(string peer)
+        {
+            if (string.IsNullOrWhiteSpace(peer)) return;
+
+            privateStartedAt.Remove(peer);
+
+            // nếu không còn session nào đang chạy => tắt timer
+            if (privateStartedAt.Count == 0)
+                friendTimer?.Stop();
+        }
+
+        // Khởi tạo timer (gọi trong constructor)
+        private void InitFriendTimer()
+        {
+            friendTimer = new System.Windows.Forms.Timer();
+            friendTimer.Interval = 500; // 0.5s tick cho mượt
+            friendTimer.Tick += (_, __) =>
+            {
+                // kiểm tra tất cả peer đang nhắn riêng
+                var toPromote = new List<string>();
+
+                foreach (var kv in privateStartedAt)
+                {
+                    string peer = kv.Key;
+                    var start = kv.Value;
+                    var elapsed = DateTime.Now - start;
+
+                    // > 10s thì lên bạn thân
+                    if (elapsed.TotalSeconds >= 10)
+                        toPromote.Add(peer);
+                }
+
+                foreach (var peer in toPromote)
+                {
+                    // đổi trạng thái
+                    friendLevel[peer] = FriendLevel.Than;
+                    privateStartedAt.Remove(peer);
+
+                    RefreshUserListText();
+
+                    // thông báo lên server 1 lần
+                    if (!bestNotified.Contains(peer))
+                    {
+                        bestNotified.Add(peer);
+                        SendString(server, $"FRIEND|{peer}|BEST");
+                    }
+
+                    // THÔNG BÁO: ưu tiên hiện trong khung chat riêng nếu đang chat với peer
+                    if (privatePeer == peer)
+                    {
+                        lsvPrivate.Items.Add(new ListViewItem($"[SYS] Bạn đã trở thành bạn thân với {peer}!"));
+                        lsvPrivate.EnsureVisible(lsvPrivate.Items.Count - 1);
+                    }
+                    else
+                    {
+                        AddMessage($"[SYS] Bạn đã trở thành bạn thân với {peer}! (chọn {peer} để xem PM)");
+                    }
+                }
+
+                if (privateStartedAt.Count == 0)
+                    friendTimer.Stop();
+            };
         }
 
     }
