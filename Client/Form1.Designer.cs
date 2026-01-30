@@ -28,442 +28,423 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
-            this.lsvMessage = new System.Windows.Forms.ListView();
-            this.txbMessage = new System.Windows.Forms.TextBox();
-            this.btnSend = new System.Windows.Forms.Button();
-            this.txbName = new System.Windows.Forms.TextBox();
-            this.txbRoomId = new System.Windows.Forms.TextBox();
-            this.btnJoinRoom = new System.Windows.Forms.Button();
-            this.lblTen = new System.Windows.Forms.Label();
-            this.lblRoom = new System.Windows.Forms.Label();
-            this.lstUsers = new System.Windows.Forms.ListBox();
-            this.lblPrivateWith = new System.Windows.Forms.Label();
-            this.lsvPrivate = new System.Windows.Forms.ListView();
-            this.txbPrivate = new System.Windows.Forms.TextBox();
-            this.btnSendPrivate = new System.Windows.Forms.Button();
-            this.lblPrivateTimer = new System.Windows.Forms.Label();
-            this.btnClosePrivate = new System.Windows.Forms.Button();
-
-            // --- NEW CONTAINERS ---
-            this.pnlLeftSidebar = new System.Windows.Forms.Panel();
-            this.pnlClientLogo = new System.Windows.Forms.Panel(); // [NEW] Panel Icon Xoay
-            this.pnlUserInfo = new System.Windows.Forms.Panel();
-            this.lblMyIp = new System.Windows.Forms.Label(); // [NEW] Hien IP
-            this.lblTitle = new System.Windows.Forms.Label();
-            this.pnlRightSidebar = new System.Windows.Forms.Panel();
-            this.pnlPrivateChat = new System.Windows.Forms.Panel();
-            this.pnlUserList = new System.Windows.Forms.Panel();
-            this.pnlScanner = new System.Windows.Forms.Panel(); // [NEW] Thanh quet
-            this.lblOnlineUsers = new System.Windows.Forms.Label();
-            this.pnlMainChat = new System.Windows.Forms.Panel();
-            this.pnlChatBoxBorder = new System.Windows.Forms.Panel();
-            this.pnlInputArea = new System.Windows.Forms.Panel();
-            this.animTimer = new System.Windows.Forms.Timer(this.components);
-
-            this.pnlLeftSidebar.SuspendLayout();
-            this.pnlUserInfo.SuspendLayout();
-            this.pnlRightSidebar.SuspendLayout();
-            this.pnlPrivateChat.SuspendLayout();
-            this.pnlUserList.SuspendLayout();
-            this.pnlMainChat.SuspendLayout();
-            this.pnlChatBoxBorder.SuspendLayout();
-            this.pnlInputArea.SuspendLayout();
-            this.SuspendLayout();
-
-            // 
-            // pnlLeftSidebar (Cột Trái)
-            // 
-            this.pnlLeftSidebar.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(20)))), ((int)(((byte)(20)))), ((int)(((byte)(25)))));
-            this.pnlLeftSidebar.Controls.Add(this.pnlClientLogo);
-            this.pnlLeftSidebar.Controls.Add(this.pnlUserInfo);
-            this.pnlLeftSidebar.Controls.Add(this.lblTitle);
-            this.pnlLeftSidebar.Dock = System.Windows.Forms.DockStyle.Left;
-            this.pnlLeftSidebar.Location = new System.Drawing.Point(0, 0);
-            this.pnlLeftSidebar.Name = "pnlLeftSidebar";
-            this.pnlLeftSidebar.Size = new System.Drawing.Size(220, 648);
-            this.pnlLeftSidebar.TabIndex = 20;
-            // 
-            // lblTitle
-            // 
-            this.lblTitle.AutoSize = true;
-            this.lblTitle.Font = new System.Drawing.Font("Consolas", 16F, System.Drawing.FontStyle.Bold);
-            this.lblTitle.ForeColor = System.Drawing.Color.Cyan;
-            this.lblTitle.Location = new System.Drawing.Point(12, 20);
-            this.lblTitle.Name = "lblTitle";
-            this.lblTitle.Size = new System.Drawing.Size(180, 26);
-            this.lblTitle.TabIndex = 0;
-            this.lblTitle.Text = "CLIENT_TERM";
-            // 
-            // pnlUserInfo
-            // 
-            this.pnlUserInfo.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.pnlUserInfo.Controls.Add(this.lblTen);
-            this.pnlUserInfo.Controls.Add(this.txbName);
-            this.pnlUserInfo.Controls.Add(this.lblRoom);
-            this.pnlUserInfo.Controls.Add(this.txbRoomId);
-            this.pnlUserInfo.Controls.Add(this.btnJoinRoom);
-            this.pnlUserInfo.Controls.Add(this.lblMyIp);
-            this.pnlUserInfo.Location = new System.Drawing.Point(12, 70);
-            this.pnlUserInfo.Name = "pnlUserInfo";
-            this.pnlUserInfo.Size = new System.Drawing.Size(190, 240);
-            this.pnlUserInfo.TabIndex = 1;
-            // 
-            // pnlClientLogo
-            // 
-            // [NEW] Panel vẽ icon xoay
-            this.pnlClientLogo.Location = new System.Drawing.Point(12, 330);
-            this.pnlClientLogo.Name = "pnlClientLogo";
-            this.pnlClientLogo.Size = new System.Drawing.Size(190, 190);
-            this.pnlClientLogo.TabIndex = 2;
-            this.pnlClientLogo.Paint += new System.Windows.Forms.PaintEventHandler(this.pnlClientLogo_Paint);
-            // 
-            // lblTen
-            // 
-            this.lblTen.AutoSize = true;
-            this.lblTen.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
-            this.lblTen.ForeColor = System.Drawing.Color.Silver;
-            this.lblTen.Location = new System.Drawing.Point(5, 10);
-            this.lblTen.Name = "lblTen";
-            this.lblTen.Size = new System.Drawing.Size(65, 15);
-            this.lblTen.TabIndex = 6;
-            this.lblTen.Text = "YOUR ID:";
-            // 
-            // txbName
-            // 
-            this.txbName.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(35)))));
-            this.txbName.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.txbName.ForeColor = System.Drawing.Color.Lime;
-            this.txbName.Font = new System.Drawing.Font("Consolas", 10F);
-            this.txbName.Location = new System.Drawing.Point(8, 30);
-            this.txbName.Name = "txbName";
-            this.txbName.ReadOnly = true;
-            this.txbName.Size = new System.Drawing.Size(170, 23);
-            this.txbName.TabIndex = 3;
-            // 
-            // lblRoom
-            // 
-            this.lblRoom.AutoSize = true;
-            this.lblRoom.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
-            this.lblRoom.ForeColor = System.Drawing.Color.Silver;
-            this.lblRoom.Location = new System.Drawing.Point(5, 70);
-            this.lblRoom.Name = "lblRoom";
-            this.lblRoom.Size = new System.Drawing.Size(95, 15);
-            this.lblRoom.TabIndex = 7;
-            this.lblRoom.Text = "CHANNEL ID:";
-            // 
-            // txbRoomId
-            // 
-            this.txbRoomId.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(40)))), ((int)(((byte)(50)))));
-            this.txbRoomId.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.txbRoomId.ForeColor = System.Drawing.Color.Cyan;
-            this.txbRoomId.Font = new System.Drawing.Font("Consolas", 11F, System.Drawing.FontStyle.Bold);
-            this.txbRoomId.Location = new System.Drawing.Point(8, 90);
-            this.txbRoomId.Name = "txbRoomId";
-            this.txbRoomId.Size = new System.Drawing.Size(170, 25);
-            this.txbRoomId.TabIndex = 4;
-            // 
-            // btnJoinRoom
-            // 
-            this.btnJoinRoom.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(100)))), ((int)(((byte)(200)))));
-            this.btnJoinRoom.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnJoinRoom.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
-            this.btnJoinRoom.ForeColor = System.Drawing.Color.White;
-            this.btnJoinRoom.Location = new System.Drawing.Point(8, 130);
-            this.btnJoinRoom.Name = "btnJoinRoom";
-            this.btnJoinRoom.Size = new System.Drawing.Size(170, 35);
-            this.btnJoinRoom.TabIndex = 5;
-            this.btnJoinRoom.Text = "CONNECT ROOM";
-            this.btnJoinRoom.UseVisualStyleBackColor = false;
-            this.btnJoinRoom.Click += new System.EventHandler(this.btnJoinRoom_Click);
-            // 
-            // lblMyIp
-            // 
-            this.lblMyIp.AutoSize = true;
-            this.lblMyIp.Font = new System.Drawing.Font("Consolas", 9F);
-            this.lblMyIp.ForeColor = System.Drawing.Color.Cyan;
-            this.lblMyIp.Location = new System.Drawing.Point(5, 180);
-            this.lblMyIp.Name = "lblMyIp";
-            this.lblMyIp.Size = new System.Drawing.Size(119, 14);
-            this.lblMyIp.TabIndex = 8;
-            this.lblMyIp.Text = "SERVER IP: ...";
-            // 
-            // pnlRightSidebar (Cột Phải)
-            // 
-            this.pnlRightSidebar.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(25)))), ((int)(((byte)(25)))), ((int)(((byte)(30)))));
-            this.pnlRightSidebar.Controls.Add(this.pnlPrivateChat);
-            this.pnlRightSidebar.Controls.Add(this.pnlUserList);
-            this.pnlRightSidebar.Dock = System.Windows.Forms.DockStyle.Right;
-            this.pnlRightSidebar.Location = new System.Drawing.Point(1049, 0);
-            this.pnlRightSidebar.Name = "pnlRightSidebar";
-            this.pnlRightSidebar.Size = new System.Drawing.Size(400, 648);
-            this.pnlRightSidebar.TabIndex = 21;
-            this.pnlRightSidebar.Paint += new System.Windows.Forms.PaintEventHandler(this.pnlRightSidebar_Paint); // Vẽ mưa số
-            // 
-            // pnlUserList
-            // 
-            this.pnlUserList.Controls.Add(this.pnlScanner);
-            this.pnlUserList.Controls.Add(this.lblOnlineUsers);
-            this.pnlUserList.Controls.Add(this.lstUsers);
-            this.pnlUserList.Dock = System.Windows.Forms.DockStyle.Top;
-            this.pnlUserList.Location = new System.Drawing.Point(0, 0);
-            this.pnlUserList.Name = "pnlUserList";
-            this.pnlUserList.Size = new System.Drawing.Size(400, 300);
-            this.pnlUserList.TabIndex = 0;
-            // 
-            // lblOnlineUsers
-            // 
-            this.lblOnlineUsers.AutoSize = true;
-            this.lblOnlineUsers.Font = new System.Drawing.Font("Consolas", 12F, System.Drawing.FontStyle.Bold);
-            this.lblOnlineUsers.ForeColor = System.Drawing.Color.Lime;
-            this.lblOnlineUsers.Location = new System.Drawing.Point(10, 15);
-            this.lblOnlineUsers.Name = "lblOnlineUsers";
-            this.lblOnlineUsers.Size = new System.Drawing.Size(135, 19);
-            this.lblOnlineUsers.Text = "ONLINE AGENTS";
-            this.lblOnlineUsers.TabIndex = 9;
-            // 
-            // lstUsers
-            // 
-            this.lstUsers.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.lstUsers.BackColor = System.Drawing.Color.Black;
-            this.lstUsers.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.lstUsers.Font = new System.Drawing.Font("Consolas", 10F);
-            this.lstUsers.ForeColor = System.Drawing.Color.White;
-            this.lstUsers.FormattingEnabled = true;
-            this.lstUsers.ItemHeight = 15;
-            this.lstUsers.Location = new System.Drawing.Point(10, 45);
-            this.lstUsers.Name = "lstUsers";
-            this.lstUsers.Size = new System.Drawing.Size(380, 242);
-            this.lstUsers.TabIndex = 8;
-            this.lstUsers.SelectedIndexChanged += new System.EventHandler(this.lstUsers_SelectedIndexChanged);
-            // 
-            // pnlScanner
-            // 
-            // [NEW]: Thanh quét hiệu ứng
-            this.pnlScanner.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(255)))), ((int)(((byte)(0))))); // Màu xanh lá
-            this.pnlScanner.Location = new System.Drawing.Point(10, 45);
-            this.pnlScanner.Name = "pnlScanner";
-            this.pnlScanner.Size = new System.Drawing.Size(380, 2); // Mỏng
-            this.pnlScanner.TabIndex = 10;
-            // 
-            // pnlPrivateChat
-            // 
-            this.pnlPrivateChat.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(35)))), ((int)(((byte)(35)))), ((int)(((byte)(45)))));
-            this.pnlPrivateChat.Controls.Add(this.lblPrivateWith);
-            this.pnlPrivateChat.Controls.Add(this.lblPrivateTimer);
-            this.pnlPrivateChat.Controls.Add(this.btnClosePrivate);
-            this.pnlPrivateChat.Controls.Add(this.lsvPrivate);
-            this.pnlPrivateChat.Controls.Add(this.txbPrivate);
-            this.pnlPrivateChat.Controls.Add(this.btnSendPrivate);
-            this.pnlPrivateChat.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlPrivateChat.Location = new System.Drawing.Point(0, 300);
-            this.pnlPrivateChat.Name = "pnlPrivateChat";
-            this.pnlPrivateChat.Padding = new System.Windows.Forms.Padding(10);
-            this.pnlPrivateChat.Size = new System.Drawing.Size(400, 348);
-            this.pnlPrivateChat.TabIndex = 1;
-            // 
-            // lblPrivateWith
-            // 
-            this.lblPrivateWith.AutoSize = true;
-            this.lblPrivateWith.Font = new System.Drawing.Font("Consolas", 11F, System.Drawing.FontStyle.Bold);
-            this.lblPrivateWith.ForeColor = System.Drawing.Color.Magenta;
-            this.lblPrivateWith.Location = new System.Drawing.Point(10, 10);
-            this.lblPrivateWith.Name = "lblPrivateWith";
-            this.lblPrivateWith.Size = new System.Drawing.Size(168, 18);
-            this.lblPrivateWith.TabIndex = 9;
-            this.lblPrivateWith.Text = "SECURE CHANNEL: ???";
-            // 
-            // lblPrivateTimer
-            // 
-            this.lblPrivateTimer.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.lblPrivateTimer.AutoSize = true;
-            this.lblPrivateTimer.ForeColor = System.Drawing.Color.Gray;
-            this.lblPrivateTimer.Location = new System.Drawing.Point(260, 12);
-            this.lblPrivateTimer.Name = "lblPrivateTimer";
-            this.lblPrivateTimer.Size = new System.Drawing.Size(63, 20);
-            this.lblPrivateTimer.TabIndex = 13;
-            this.lblPrivateTimer.Text = "00:00:00";
-            // 
-            // btnClosePrivate
-            // 
-            this.btnClosePrivate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnClosePrivate.BackColor = System.Drawing.Color.Red;
-            this.btnClosePrivate.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnClosePrivate.Font = new System.Drawing.Font("Segoe UI", 8F, System.Drawing.FontStyle.Bold);
-            this.btnClosePrivate.ForeColor = System.Drawing.Color.White;
-            this.btnClosePrivate.Location = new System.Drawing.Point(350, 5);
-            this.btnClosePrivate.Name = "btnClosePrivate";
-            this.btnClosePrivate.Size = new System.Drawing.Size(40, 25);
-            this.btnClosePrivate.TabIndex = 14;
-            this.btnClosePrivate.Text = "X";
-            this.btnClosePrivate.UseVisualStyleBackColor = false;
-            this.btnClosePrivate.Click += new System.EventHandler(this.btnClosePrivate_Click);
-            // 
-            // lsvPrivate
-            // 
-            this.lsvPrivate.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.lsvPrivate.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(10)))), ((int)(((byte)(10)))), ((int)(((byte)(15)))));
-            this.lsvPrivate.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.lsvPrivate.Font = new System.Drawing.Font("Consolas", 10F);
-            this.lsvPrivate.ForeColor = System.Drawing.Color.Magenta;
-            this.lsvPrivate.FullRowSelect = true;
-            this.lsvPrivate.Location = new System.Drawing.Point(10, 40);
-            this.lsvPrivate.Name = "lsvPrivate";
-            this.lsvPrivate.Size = new System.Drawing.Size(380, 250);
-            this.lsvPrivate.TabIndex = 10;
-            this.lsvPrivate.UseCompatibleStateImageBehavior = false;
-            this.lsvPrivate.View = System.Windows.Forms.View.List;
-            // 
-            // txbPrivate
-            // 
-            this.txbPrivate.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.txbPrivate.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(50)))), ((int)(((byte)(60)))));
-            this.txbPrivate.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.txbPrivate.Font = new System.Drawing.Font("Consolas", 10F);
-            this.txbPrivate.ForeColor = System.Drawing.Color.White;
-            this.txbPrivate.Location = new System.Drawing.Point(10, 305);
-            this.txbPrivate.Multiline = true;
-            this.txbPrivate.Name = "txbPrivate";
-            this.txbPrivate.Size = new System.Drawing.Size(300, 35);
-            this.txbPrivate.TabIndex = 11;
-            // 
-            // btnSendPrivate
-            // 
-            this.btnSendPrivate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnSendPrivate.BackColor = System.Drawing.Color.Magenta;
-            this.btnSendPrivate.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnSendPrivate.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
-            this.btnSendPrivate.ForeColor = System.Drawing.Color.White;
-            this.btnSendPrivate.Location = new System.Drawing.Point(315, 305);
-            this.btnSendPrivate.Name = "btnSendPrivate";
-            this.btnSendPrivate.Size = new System.Drawing.Size(75, 35);
-            this.btnSendPrivate.TabIndex = 12;
-            this.btnSendPrivate.Text = "SEND";
-            this.btnSendPrivate.UseVisualStyleBackColor = false;
-            this.btnSendPrivate.Click += new System.EventHandler(this.btnSendPrivate_Click);
-            // 
-            // pnlMainChat (Khu vực giữa)
-            // 
-            this.pnlMainChat.BackColor = System.Drawing.Color.Black;
-            this.pnlMainChat.Controls.Add(this.pnlChatBoxBorder);
-            this.pnlMainChat.Controls.Add(this.pnlInputArea);
-            this.pnlMainChat.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlMainChat.Location = new System.Drawing.Point(220, 0);
-            this.pnlMainChat.Name = "pnlMainChat";
-            this.pnlMainChat.Padding = new System.Windows.Forms.Padding(10);
-            this.pnlMainChat.Size = new System.Drawing.Size(829, 648);
-            this.pnlMainChat.TabIndex = 22;
-            this.pnlMainChat.Paint += new System.Windows.Forms.PaintEventHandler(this.pnlMainChat_Paint);
-            // 
-            // pnlChatBoxBorder (Viền Neon cho khung chat)
-            // 
-            this.pnlChatBoxBorder.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.pnlChatBoxBorder.BackColor = System.Drawing.Color.Cyan;
-            this.pnlChatBoxBorder.Controls.Add(this.lsvMessage);
-            this.pnlChatBoxBorder.Location = new System.Drawing.Point(10, 10);
-            this.pnlChatBoxBorder.Name = "pnlChatBoxBorder";
-            this.pnlChatBoxBorder.Padding = new System.Windows.Forms.Padding(2);
-            this.pnlChatBoxBorder.Size = new System.Drawing.Size(809, 560);
-            this.pnlChatBoxBorder.TabIndex = 3;
+            components = new System.ComponentModel.Container();
+            lsvMessage = new ListView();
+            txbMessage = new TextBox();
+            btnSend = new Button();
+            txbName = new TextBox();
+            txbRoomId = new TextBox();
+            btnJoinRoom = new Button();
+            lblTen = new Label();
+            lblRoom = new Label();
+            lstUsers = new ListBox();
+            lblPrivateWith = new Label();
+            lsvPrivate = new ListView();
+            txbPrivate = new TextBox();
+            btnSendPrivate = new Button();
+            lblPrivateTimer = new Label();
+            btnClosePrivate = new Button();
+            pnlLeftSidebar = new Panel();
+            pnlClientLogo = new Panel();
+            pnlUserInfo = new Panel();
+            lblMyIp = new Label();
+            lblTitle = new Label();
+            pnlRightSidebar = new Panel();
+            pnlPrivateChat = new Panel();
+            pnlUserList = new Panel();
+            pnlScanner = new Panel();
+            lblOnlineUsers = new Label();
+            pnlMainChat = new Panel();
+            pnlChatBoxBorder = new Panel();
+            pnlInputArea = new Panel();
+            animTimer = new System.Windows.Forms.Timer(components);
+            pnlLeftSidebar.SuspendLayout();
+            pnlUserInfo.SuspendLayout();
+            pnlRightSidebar.SuspendLayout();
+            pnlPrivateChat.SuspendLayout();
+            pnlUserList.SuspendLayout();
+            pnlMainChat.SuspendLayout();
+            pnlChatBoxBorder.SuspendLayout();
+            pnlInputArea.SuspendLayout();
+            SuspendLayout();
             // 
             // lsvMessage
             // 
-            this.lsvMessage.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(10)))), ((int)(((byte)(10)))), ((int)(((byte)(15)))));
-            this.lsvMessage.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.lsvMessage.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lsvMessage.Font = new System.Drawing.Font("Consolas", 11F);
-            this.lsvMessage.ForeColor = System.Drawing.Color.Cyan;
-            this.lsvMessage.Location = new System.Drawing.Point(2, 2);
-            this.lsvMessage.Name = "lsvMessage";
-            this.lsvMessage.Size = new System.Drawing.Size(805, 556);
-            this.lsvMessage.TabIndex = 0;
-            this.lsvMessage.UseCompatibleStateImageBehavior = false;
-            this.lsvMessage.View = System.Windows.Forms.View.List;
-            // 
-            // pnlInputArea
-            // 
-            this.pnlInputArea.Controls.Add(this.txbMessage);
-            this.pnlInputArea.Controls.Add(this.btnSend);
-            this.pnlInputArea.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.pnlInputArea.Location = new System.Drawing.Point(10, 580);
-            this.pnlInputArea.Name = "pnlInputArea";
-            this.pnlInputArea.Size = new System.Drawing.Size(809, 58);
-            this.pnlInputArea.TabIndex = 4;
+            lsvMessage.BackColor = Color.FromArgb(10, 10, 15);
+            lsvMessage.BorderStyle = BorderStyle.None;
+            lsvMessage.Dock = DockStyle.Fill;
+            lsvMessage.Font = new Font("Consolas", 11F);
+            lsvMessage.ForeColor = Color.Cyan;
+            lsvMessage.Location = new Point(2, 2);
+            lsvMessage.Name = "lsvMessage";
+            lsvMessage.Size = new Size(805, 556);
+            lsvMessage.TabIndex = 0;
+            lsvMessage.UseCompatibleStateImageBehavior = false;
+            lsvMessage.View = View.List;
             // 
             // txbMessage
             // 
-            this.txbMessage.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.txbMessage.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(30)))), ((int)(((byte)(40)))));
-            this.txbMessage.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.txbMessage.Font = new System.Drawing.Font("Consolas", 12F);
-            this.txbMessage.ForeColor = System.Drawing.Color.White;
-            this.txbMessage.Location = new System.Drawing.Point(0, 5);
-            this.txbMessage.Multiline = true;
-            this.txbMessage.Name = "txbMessage";
-            this.txbMessage.Size = new System.Drawing.Size(680, 48);
-            this.txbMessage.TabIndex = 1;
+            txbMessage.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            txbMessage.BackColor = Color.FromArgb(30, 30, 40);
+            txbMessage.BorderStyle = BorderStyle.FixedSingle;
+            txbMessage.Font = new Font("Consolas", 12F);
+            txbMessage.ForeColor = Color.White;
+            txbMessage.Location = new Point(0, 5);
+            txbMessage.Multiline = true;
+            txbMessage.Name = "txbMessage";
+            txbMessage.Size = new Size(680, 48);
+            txbMessage.TabIndex = 1;
             // 
             // btnSend
             // 
-            this.btnSend.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnSend.BackColor = System.Drawing.Color.Cyan;
-            this.btnSend.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnSend.Font = new System.Drawing.Font("Consolas", 12F, System.Drawing.FontStyle.Bold);
-            this.btnSend.ForeColor = System.Drawing.Color.Black;
-            this.btnSend.Location = new System.Drawing.Point(690, 5);
-            this.btnSend.Name = "btnSend";
-            this.btnSend.Size = new System.Drawing.Size(119, 48);
-            this.btnSend.TabIndex = 2;
-            this.btnSend.Text = "SEND";
-            this.btnSend.UseVisualStyleBackColor = false;
-            this.btnSend.Click += new System.EventHandler(this.btnSend_Click);
+            btnSend.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
+            btnSend.BackColor = Color.Cyan;
+            btnSend.FlatStyle = FlatStyle.Flat;
+            btnSend.Font = new Font("Consolas", 12F, FontStyle.Bold);
+            btnSend.ForeColor = Color.Black;
+            btnSend.Location = new Point(690, 5);
+            btnSend.Name = "btnSend";
+            btnSend.Size = new Size(119, 48);
+            btnSend.TabIndex = 2;
+            btnSend.Text = "SEND";
+            btnSend.UseVisualStyleBackColor = false;
+            btnSend.Click += btnSend_Click;
+            // 
+            // txbName
+            // 
+            txbName.BackColor = Color.FromArgb(30, 30, 35);
+            txbName.BorderStyle = BorderStyle.FixedSingle;
+            txbName.Font = new Font("Consolas", 10F);
+            txbName.ForeColor = Color.Lime;
+            txbName.Location = new Point(8, 30);
+            txbName.Name = "txbName";
+            txbName.ReadOnly = true;
+            txbName.Size = new Size(170, 27);
+            txbName.TabIndex = 3;
+            // 
+            // txbRoomId
+            // 
+            txbRoomId.BackColor = Color.FromArgb(40, 40, 50);
+            txbRoomId.BorderStyle = BorderStyle.FixedSingle;
+            txbRoomId.Font = new Font("Consolas", 11F, FontStyle.Bold);
+            txbRoomId.ForeColor = Color.Cyan;
+            txbRoomId.Location = new Point(8, 90);
+            txbRoomId.Name = "txbRoomId";
+            txbRoomId.Size = new Size(170, 29);
+            txbRoomId.TabIndex = 4;
+            // 
+            // btnJoinRoom
+            // 
+            btnJoinRoom.BackColor = Color.FromArgb(0, 100, 200);
+            btnJoinRoom.FlatStyle = FlatStyle.Flat;
+            btnJoinRoom.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            btnJoinRoom.ForeColor = Color.White;
+            btnJoinRoom.Location = new Point(8, 130);
+            btnJoinRoom.Name = "btnJoinRoom";
+            btnJoinRoom.Size = new Size(170, 35);
+            btnJoinRoom.TabIndex = 5;
+            btnJoinRoom.Text = "CONNECT ROOM";
+            btnJoinRoom.UseVisualStyleBackColor = false;
+            btnJoinRoom.Click += btnJoinRoom_Click;
+            // 
+            // lblTen
+            // 
+            lblTen.AutoSize = true;
+            lblTen.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            lblTen.ForeColor = Color.Silver;
+            lblTen.Location = new Point(5, 10);
+            lblTen.Name = "lblTen";
+            lblTen.Size = new Size(74, 20);
+            lblTen.TabIndex = 6;
+            lblTen.Text = "YOUR ID:";
+            // 
+            // lblRoom
+            // 
+            lblRoom.AutoSize = true;
+            lblRoom.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            lblRoom.ForeColor = Color.Silver;
+            lblRoom.Location = new Point(5, 70);
+            lblRoom.Name = "lblRoom";
+            lblRoom.Size = new Size(104, 20);
+            lblRoom.TabIndex = 7;
+            lblRoom.Text = "CHANNEL ID:";
+            // 
+            // lstUsers
+            // 
+            lstUsers.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            lstUsers.BackColor = Color.Black;
+            lstUsers.BorderStyle = BorderStyle.FixedSingle;
+            lstUsers.Font = new Font("Consolas", 10F);
+            lstUsers.ForeColor = Color.White;
+            lstUsers.FormattingEnabled = true;
+            lstUsers.Location = new Point(10, 45);
+            lstUsers.Name = "lstUsers";
+            lstUsers.Size = new Size(380, 242);
+            lstUsers.TabIndex = 8;
+            lstUsers.SelectedIndexChanged += lstUsers_SelectedIndexChanged;
+            // 
+            // lblPrivateWith
+            // 
+            lblPrivateWith.AutoSize = true;
+            lblPrivateWith.Font = new Font("Consolas", 11F, FontStyle.Bold);
+            lblPrivateWith.ForeColor = Color.Magenta;
+            lblPrivateWith.Location = new Point(10, 10);
+            lblPrivateWith.Name = "lblPrivateWith";
+            lblPrivateWith.Size = new Size(200, 22);
+            lblPrivateWith.TabIndex = 9;
+            lblPrivateWith.Text = "SECURE CHANNEL: ???";
+            // 
+            // lsvPrivate
+            // 
+            lsvPrivate.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            lsvPrivate.BackColor = Color.FromArgb(10, 10, 15);
+            lsvPrivate.BorderStyle = BorderStyle.None;
+            lsvPrivate.Font = new Font("Consolas", 10F);
+            lsvPrivate.ForeColor = Color.Magenta;
+            lsvPrivate.FullRowSelect = true;
+            lsvPrivate.Location = new Point(10, 40);
+            lsvPrivate.Name = "lsvPrivate";
+            lsvPrivate.Size = new Size(380, 250);
+            lsvPrivate.TabIndex = 10;
+            lsvPrivate.UseCompatibleStateImageBehavior = false;
+            lsvPrivate.View = View.List;
+            // 
+            // txbPrivate
+            // 
+            txbPrivate.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            txbPrivate.BackColor = Color.FromArgb(50, 50, 60);
+            txbPrivate.BorderStyle = BorderStyle.FixedSingle;
+            txbPrivate.Font = new Font("Consolas", 10F);
+            txbPrivate.ForeColor = Color.White;
+            txbPrivate.Location = new Point(10, 305);
+            txbPrivate.Multiline = true;
+            txbPrivate.Name = "txbPrivate";
+            txbPrivate.Size = new Size(300, 35);
+            txbPrivate.TabIndex = 11;
+            // 
+            // btnSendPrivate
+            // 
+            btnSendPrivate.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            btnSendPrivate.BackColor = Color.Magenta;
+            btnSendPrivate.FlatStyle = FlatStyle.Flat;
+            btnSendPrivate.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            btnSendPrivate.ForeColor = Color.White;
+            btnSendPrivate.Location = new Point(315, 305);
+            btnSendPrivate.Name = "btnSendPrivate";
+            btnSendPrivate.Size = new Size(75, 35);
+            btnSendPrivate.TabIndex = 12;
+            btnSendPrivate.Text = "SEND";
+            btnSendPrivate.UseVisualStyleBackColor = false;
+            btnSendPrivate.Click += btnSendPrivate_Click;
+            // 
+            // lblPrivateTimer
+            // 
+            lblPrivateTimer.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            lblPrivateTimer.AutoSize = true;
+            lblPrivateTimer.ForeColor = Color.Gray;
+            lblPrivateTimer.Location = new Point(260, 12);
+            lblPrivateTimer.Name = "lblPrivateTimer";
+            lblPrivateTimer.Size = new Size(63, 20);
+            lblPrivateTimer.TabIndex = 13;
+            lblPrivateTimer.Text = "00:00:00";
+            // 
+            // btnClosePrivate
+            // 
+            btnClosePrivate.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnClosePrivate.BackColor = Color.Red;
+            btnClosePrivate.FlatStyle = FlatStyle.Flat;
+            btnClosePrivate.Font = new Font("Segoe UI", 8F, FontStyle.Bold);
+            btnClosePrivate.ForeColor = Color.White;
+            btnClosePrivate.Location = new Point(350, 5);
+            btnClosePrivate.Name = "btnClosePrivate";
+            btnClosePrivate.Size = new Size(40, 25);
+            btnClosePrivate.TabIndex = 14;
+            btnClosePrivate.Text = "X";
+            btnClosePrivate.UseVisualStyleBackColor = false;
+            btnClosePrivate.Click += btnClosePrivate_Click;
+            // 
+            // pnlLeftSidebar
+            // 
+            pnlLeftSidebar.BackColor = Color.FromArgb(20, 20, 25);
+            pnlLeftSidebar.Controls.Add(pnlClientLogo);
+            pnlLeftSidebar.Controls.Add(pnlUserInfo);
+            pnlLeftSidebar.Controls.Add(lblTitle);
+            pnlLeftSidebar.Dock = DockStyle.Left;
+            pnlLeftSidebar.Location = new Point(0, 0);
+            pnlLeftSidebar.Name = "pnlLeftSidebar";
+            pnlLeftSidebar.Size = new Size(220, 648);
+            pnlLeftSidebar.TabIndex = 20;
+            // 
+            // pnlClientLogo
+            // 
+            pnlClientLogo.Location = new Point(12, 330);
+            pnlClientLogo.Name = "pnlClientLogo";
+            pnlClientLogo.Size = new Size(190, 190);
+            pnlClientLogo.TabIndex = 2;
+            pnlClientLogo.Paint += pnlClientLogo_Paint;
+            // 
+            // pnlUserInfo
+            // 
+            pnlUserInfo.BorderStyle = BorderStyle.FixedSingle;
+            pnlUserInfo.Controls.Add(lblTen);
+            pnlUserInfo.Controls.Add(txbName);
+            pnlUserInfo.Controls.Add(lblRoom);
+            pnlUserInfo.Controls.Add(txbRoomId);
+            pnlUserInfo.Controls.Add(btnJoinRoom);
+            pnlUserInfo.Controls.Add(lblMyIp);
+            pnlUserInfo.Location = new Point(12, 70);
+            pnlUserInfo.Name = "pnlUserInfo";
+            pnlUserInfo.Size = new Size(202, 240);
+            pnlUserInfo.TabIndex = 1;
+            // 
+            // lblMyIp
+            // 
+            lblMyIp.AutoSize = true;
+            lblMyIp.Font = new Font("Consolas", 9F);
+            lblMyIp.ForeColor = Color.Cyan;
+            lblMyIp.Location = new Point(5, 180);
+            lblMyIp.Name = "lblMyIp";
+            lblMyIp.Size = new Size(120, 18);
+            lblMyIp.TabIndex = 8;
+            lblMyIp.Text = "SERVER IP: ...";
+            // 
+            // lblTitle
+            // 
+            lblTitle.AutoSize = true;
+            lblTitle.Font = new Font("Consolas", 16F, FontStyle.Bold);
+            lblTitle.ForeColor = Color.Cyan;
+            lblTitle.Location = new Point(12, 20);
+            lblTitle.Name = "lblTitle";
+            lblTitle.Size = new Size(179, 32);
+            lblTitle.TabIndex = 0;
+            lblTitle.Text = "CLIENT_TERM";
+            // 
+            // pnlRightSidebar
+            // 
+            pnlRightSidebar.BackColor = Color.FromArgb(25, 25, 30);
+            pnlRightSidebar.Controls.Add(pnlPrivateChat);
+            pnlRightSidebar.Controls.Add(pnlUserList);
+            pnlRightSidebar.Dock = DockStyle.Right;
+            pnlRightSidebar.Location = new Point(1049, 0);
+            pnlRightSidebar.Name = "pnlRightSidebar";
+            pnlRightSidebar.Size = new Size(400, 648);
+            pnlRightSidebar.TabIndex = 21;
+            pnlRightSidebar.Paint += pnlRightSidebar_Paint;
+            // 
+            // pnlPrivateChat
+            // 
+            pnlPrivateChat.BackColor = Color.FromArgb(35, 35, 45);
+            pnlPrivateChat.Controls.Add(lblPrivateWith);
+            pnlPrivateChat.Controls.Add(lblPrivateTimer);
+            pnlPrivateChat.Controls.Add(btnClosePrivate);
+            pnlPrivateChat.Controls.Add(lsvPrivate);
+            pnlPrivateChat.Controls.Add(txbPrivate);
+            pnlPrivateChat.Controls.Add(btnSendPrivate);
+            pnlPrivateChat.Dock = DockStyle.Fill;
+            pnlPrivateChat.Location = new Point(0, 300);
+            pnlPrivateChat.Name = "pnlPrivateChat";
+            pnlPrivateChat.Padding = new Padding(10);
+            pnlPrivateChat.Size = new Size(400, 348);
+            pnlPrivateChat.TabIndex = 1;
+            // 
+            // pnlUserList
+            // 
+            pnlUserList.Controls.Add(pnlScanner);
+            pnlUserList.Controls.Add(lblOnlineUsers);
+            pnlUserList.Controls.Add(lstUsers);
+            pnlUserList.Dock = DockStyle.Top;
+            pnlUserList.Location = new Point(0, 0);
+            pnlUserList.Name = "pnlUserList";
+            pnlUserList.Size = new Size(400, 300);
+            pnlUserList.TabIndex = 0;
+            // 
+            // pnlScanner
+            // 
+            pnlScanner.BackColor = Color.FromArgb(0, 255, 0);
+            pnlScanner.Location = new Point(10, 45);
+            pnlScanner.Name = "pnlScanner";
+            pnlScanner.Size = new Size(380, 2);
+            pnlScanner.TabIndex = 10;
+            // 
+            // lblOnlineUsers
+            // 
+            lblOnlineUsers.AutoSize = true;
+            lblOnlineUsers.Font = new Font("Consolas", 12F, FontStyle.Bold);
+            lblOnlineUsers.ForeColor = Color.Lime;
+            lblOnlineUsers.Location = new Point(10, 15);
+            lblOnlineUsers.Name = "lblOnlineUsers";
+            lblOnlineUsers.Size = new Size(153, 23);
+            lblOnlineUsers.TabIndex = 9;
+            lblOnlineUsers.Text = "ONLINE AGENTS";
+            // 
+            // pnlMainChat
+            // 
+            pnlMainChat.BackColor = Color.Black;
+            pnlMainChat.Controls.Add(pnlChatBoxBorder);
+            pnlMainChat.Controls.Add(pnlInputArea);
+            pnlMainChat.Dock = DockStyle.Fill;
+            pnlMainChat.Location = new Point(220, 0);
+            pnlMainChat.Name = "pnlMainChat";
+            pnlMainChat.Padding = new Padding(10);
+            pnlMainChat.Size = new Size(829, 648);
+            pnlMainChat.TabIndex = 22;
+            pnlMainChat.Paint += pnlMainChat_Paint;
+            // 
+            // pnlChatBoxBorder
+            // 
+            pnlChatBoxBorder.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            pnlChatBoxBorder.BackColor = Color.Cyan;
+            pnlChatBoxBorder.Controls.Add(lsvMessage);
+            pnlChatBoxBorder.Location = new Point(10, 10);
+            pnlChatBoxBorder.Name = "pnlChatBoxBorder";
+            pnlChatBoxBorder.Padding = new Padding(2);
+            pnlChatBoxBorder.Size = new Size(809, 560);
+            pnlChatBoxBorder.TabIndex = 3;
+            // 
+            // pnlInputArea
+            // 
+            pnlInputArea.Controls.Add(txbMessage);
+            pnlInputArea.Controls.Add(btnSend);
+            pnlInputArea.Dock = DockStyle.Bottom;
+            pnlInputArea.Location = new Point(10, 580);
+            pnlInputArea.Name = "pnlInputArea";
+            pnlInputArea.Size = new Size(809, 58);
+            pnlInputArea.TabIndex = 4;
             // 
             // animTimer
             // 
-            this.animTimer.Enabled = true;
-            this.animTimer.Interval = 50;
-            this.animTimer.Tick += new System.EventHandler(this.animTimer_Tick);
+            animTimer.Enabled = true;
+            animTimer.Interval = 50;
+            animTimer.Tick += animTimer_Tick;
             // 
             // Form1
             // 
-            this.AcceptButton = this.btnSend;
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.Black;
-            this.ClientSize = new System.Drawing.Size(1449, 648);
-            // Controls chính: 3 Panel lớn
-            this.Controls.Add(this.pnlMainChat);
-            this.Controls.Add(this.pnlRightSidebar);
-            this.Controls.Add(this.pnlLeftSidebar);
-            this.Name = "Form1";
-            this.Text = "ChatPhoBo - Client Terminal";
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Form1_FormClosed);
-            this.Load += new System.EventHandler(this.Form1_Load);
-
-            this.pnlLeftSidebar.ResumeLayout(false);
-            this.pnlLeftSidebar.PerformLayout();
-            this.pnlUserInfo.ResumeLayout(false);
-            this.pnlUserInfo.PerformLayout();
-            this.pnlRightSidebar.ResumeLayout(false);
-            this.pnlPrivateChat.ResumeLayout(false);
-            this.pnlPrivateChat.PerformLayout();
-            this.pnlUserList.ResumeLayout(false);
-            this.pnlUserList.PerformLayout();
-            this.pnlMainChat.ResumeLayout(false);
-            this.pnlChatBoxBorder.ResumeLayout(false);
-            this.pnlInputArea.ResumeLayout(false);
-            this.pnlInputArea.PerformLayout();
-            this.ResumeLayout(false);
+            AcceptButton = btnSend;
+            AutoScaleDimensions = new SizeF(8F, 20F);
+            AutoScaleMode = AutoScaleMode.Font;
+            BackColor = Color.Black;
+            ClientSize = new Size(1449, 648);
+            Controls.Add(pnlMainChat);
+            Controls.Add(pnlRightSidebar);
+            Controls.Add(pnlLeftSidebar);
+            Name = "Form1";
+            Text = "ChatPhoBo - Client Terminal";
+            FormClosed += Form1_FormClosed;
+            Load += Form1_Load;
+            pnlLeftSidebar.ResumeLayout(false);
+            pnlLeftSidebar.PerformLayout();
+            pnlUserInfo.ResumeLayout(false);
+            pnlUserInfo.PerformLayout();
+            pnlRightSidebar.ResumeLayout(false);
+            pnlPrivateChat.ResumeLayout(false);
+            pnlPrivateChat.PerformLayout();
+            pnlUserList.ResumeLayout(false);
+            pnlUserList.PerformLayout();
+            pnlMainChat.ResumeLayout(false);
+            pnlChatBoxBorder.ResumeLayout(false);
+            pnlInputArea.ResumeLayout(false);
+            pnlInputArea.PerformLayout();
+            ResumeLayout(false);
         }
 
         #endregion
