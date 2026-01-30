@@ -495,8 +495,11 @@
         private void animTimer_Tick(object sender, System.EventArgs e)
         {
             // Sync IP Display
-            if (this.lblMyIp.Text != "SERVER IP: " + this.serverIp)
-                this.lblMyIp.Text = "SERVER IP: " + this.serverIp;
+            //if (this.lblMyIp.Text != "SERVER IP: " + this.serverIp)
+            //    this.lblMyIp.Text = "SERVER IP: " + this.serverIp;
+            string show = $"SERVER IP: {this.serverIp}:{this.serverPort}";
+            if (this.lblMyIp.Text != show)
+                this.lblMyIp.Text = show;
 
             // 1. Neon Breathing (Màu Cyan)
             if (_tickDir) { _tick += 3; if (_tick >= 255) _tickDir = false; }

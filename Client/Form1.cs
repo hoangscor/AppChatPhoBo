@@ -62,21 +62,37 @@ namespace server
             this.Shown += (_, __) => StartFadeIn();
 
 
-            myName = Prompt("Nhập tên", "Tên của bạn:");
+            //myName = Prompt("Nhập tên", "Tên của bạn:");
+            //if (string.IsNullOrWhiteSpace(myName))
+            //{
+            //    Close();
+            //    return;
+            //}
+
+
+            //txbName.Text = myName;
+            //this.Text = myName;
+
+            //// hỏi IP/Port server
+            //serverIp = Prompt("ChatPhoBo", "Nhập IP Server:", "192.168.3.110");
+            //string p = Prompt("ChatPhoBo", "Nhập Port:", "9999");
+            //if (!int.TryParse(p, out serverPort)) serverPort = 9999;
+
+            myName = PromptNeon("Nhập tên", "Tên của bạn:", "");
             if (string.IsNullOrWhiteSpace(myName))
             {
                 Close();
                 return;
             }
 
-
             txbName.Text = myName;
             this.Text = myName;
 
-            // hỏi IP/Port server
-            serverIp = Prompt("ChatPhoBo", "Nhập IP Server:", "192.168.3.110");
-            string p = Prompt("ChatPhoBo", "Nhập Port:", "9999");
+            // hỏi IP/Port server (giờ sẽ CÓ default hiện sẵn + giao diện neon)
+            serverIp = PromptNeon("ChatPhoBo", "Nhập IP Server:", "26.202.195.142");
+            string p = PromptNeon("ChatPhoBo", "Nhập Port:", "9999");
             if (!int.TryParse(p, out serverPort)) serverPort = 9999;
+
 
             Connect();
 
@@ -499,7 +515,44 @@ namespace server
             else
                 AddMessage($"[SYS] Bạn đã vào phòng: {room}");
         }
-        static string Prompt(string title, string label)
+        //static string Prompt(string title, string label)
+        //{
+        //    using Form form = new Form();
+        //    using Label textLabel = new Label();
+        //    using TextBox textBox = new TextBox();
+        //    using Button buttonOk = new Button();
+        //    using Button buttonCancel = new Button();
+
+        //    form.Text = title;
+        //    textLabel.Text = label;
+        //    textBox.Width = 260;
+
+        //    buttonOk.Text = "OK";
+        //    buttonCancel.Text = "Cancel";
+        //    buttonOk.DialogResult = DialogResult.OK;
+        //    buttonCancel.DialogResult = DialogResult.Cancel;
+
+        //    textLabel.SetBounds(10, 10, 280, 20);
+        //    textBox.SetBounds(10, 35, 280, 25);
+        //    buttonOk.SetBounds(130, 70, 75, 25);
+        //    buttonCancel.SetBounds(215, 70, 75, 25);
+
+        //    form.ClientSize = new Size(300, 110);
+        //    form.Controls.AddRange(new Control[] { textLabel, textBox, buttonOk, buttonCancel });
+        //    form.AcceptButton = buttonOk;
+        //    form.CancelButton = buttonCancel;
+        //    form.FormBorderStyle = FormBorderStyle.FixedDialog;
+        //    form.StartPosition = FormStartPosition.CenterScreen;
+
+        //    return form.ShowDialog() == DialogResult.OK ? textBox.Text.Trim() : "";
+        //}
+        //static string Prompt(string title, string label, string defaultValue)
+        //{
+        //    string v = Prompt(title, label);
+        //    return string.IsNullOrWhiteSpace(v) ? defaultValue : v;
+        //}
+
+        static string PromptNeon(string title, string label, string defaultValue = "")
         {
             using Form form = new Form();
             using Label textLabel = new Label();
@@ -507,33 +560,66 @@ namespace server
             using Button buttonOk = new Button();
             using Button buttonCancel = new Button();
 
+            // ===== Form style (đồng bộ neon/dark) =====
             form.Text = title;
+            form.StartPosition = FormStartPosition.CenterScreen;
+            form.FormBorderStyle = FormBorderStyle.FixedDialog;
+            form.MaximizeBox = false;
+            form.MinimizeBox = false;
+            form.BackColor = Color.FromArgb(20, 20, 25);
+            form.ForeColor = Color.White;
+            form.Font = new Font("Consolas", 10f, FontStyle.Regular);
+
+            // Label
             textLabel.Text = label;
-            textBox.Width = 260;
+            textLabel.AutoSize = true;
+            textLabel.ForeColor = Color.Silver;
+            textLabel.Location = new Point(12, 12);
 
+            // Textbox (QUAN TRỌNG: gán defaultValue)
+            textBox.Width = 340;
+            textBox.Text = defaultValue ?? "";
+            textBox.BackColor = Color.FromArgb(30, 30, 40);
+            textBox.ForeColor = Color.Cyan;
+            textBox.BorderStyle = BorderStyle.FixedSingle;
+            textBox.Location = new Point(12, 40);
+
+            // Buttons
             buttonOk.Text = "OK";
-            buttonCancel.Text = "Cancel";
             buttonOk.DialogResult = DialogResult.OK;
+            buttonOk.BackColor = Color.Cyan;
+            buttonOk.ForeColor = Color.Black;
+            buttonOk.FlatStyle = FlatStyle.Flat;
+            buttonOk.FlatAppearance.BorderSize = 0;
+            buttonOk.SetBounds(196, 80, 75, 28);
+
+            buttonCancel.Text = "Cancel";
             buttonCancel.DialogResult = DialogResult.Cancel;
+            buttonCancel.BackColor = Color.FromArgb(60, 60, 70);
+            buttonCancel.ForeColor = Color.White;
+            buttonCancel.FlatStyle = FlatStyle.Flat;
+            buttonCancel.FlatAppearance.BorderSize = 0;
+            buttonCancel.SetBounds(277, 80, 75, 28);
 
-            textLabel.SetBounds(10, 10, 280, 20);
-            textBox.SetBounds(10, 35, 280, 25);
-            buttonOk.SetBounds(130, 70, 75, 25);
-            buttonCancel.SetBounds(215, 70, 75, 25);
-
-            form.ClientSize = new Size(300, 110);
+            form.ClientSize = new Size(370, 125);
             form.Controls.AddRange(new Control[] { textLabel, textBox, buttonOk, buttonCancel });
             form.AcceptButton = buttonOk;
             form.CancelButton = buttonCancel;
-            form.FormBorderStyle = FormBorderStyle.FixedDialog;
-            form.StartPosition = FormStartPosition.CenterScreen;
+
+            // Focus
+            form.Shown += (_, __) =>
+            {
+                textBox.Focus();
+                textBox.SelectAll();
+            };
 
             return form.ShowDialog() == DialogResult.OK ? textBox.Text.Trim() : "";
         }
-        static string Prompt(string title, string label, string defaultValue)
+
+        static string PromptNeon(string title, string label, string defaultValue, string fallbackIfEmpty)
         {
-            string v = Prompt(title, label);
-            return string.IsNullOrWhiteSpace(v) ? defaultValue : v;
+            var v = PromptNeon(title, label, defaultValue);
+            return string.IsNullOrWhiteSpace(v) ? fallbackIfEmpty : v;
         }
 
         private void txbRoomId_TextChanged(object sender, EventArgs e)

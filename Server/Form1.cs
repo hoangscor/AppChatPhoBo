@@ -42,9 +42,26 @@ namespace Server
             this.Shown += (_, __) => StartFadeIn();
 
             // hỏi IP/Port khi mở server
-            bindIp = Prompt("ChatPhoBo Server", "Nhập IP bind (26.202.195.142 = tất cả):", "26.202.195.142");
-            string p = Prompt("ChatPhoBo Server", "Nhập Port:", "9999");
+            //bindIp = Prompt("ChatPhoBo Server", "Nhập IP bind (26.202.195.142 = tất cả):", "26.202.195.142");
+            //string p = Prompt("ChatPhoBo Server", "Nhập Port:", "9999");
+            //if (!int.TryParse(p, out bindPort)) bindPort = 9999;
+
+            bindIp = PromptNeon("ChatPhoBo Server", "Nhập IP bind (26.202.195.142 ):", "26.202.195.142");
+            if (string.IsNullOrWhiteSpace(bindIp))
+            {
+                Close();
+                return;
+            }
+
+            string p = PromptNeon("ChatPhoBo Server", "Nhập Port:", "9999");
+            if (string.IsNullOrWhiteSpace(p))
+            {
+                Close();
+                return;
+            }
+
             if (!int.TryParse(p, out bindPort)) bindPort = 9999;
+
 
             Connect();
         }
@@ -108,17 +125,82 @@ namespace Server
             clientList = new List<Socket>();
             // IP: địa chỉ của server
 
+            //IPAddress ipAddr;
+            //if (!IPAddress.TryParse(bindIp, out ipAddr))
+            //    ipAddr = IPAddress.Any;
+
+            //IP = new IPEndPoint(ipAddr, bindPort);
+
+
+            //server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
+            //server.Bind(IP); // gán địa chỉ ip
+            //server.Listen(100); // đợi 100 đứa trong hàng chờ
+
+            clientList = new List<Socket>();
+
+            // Parse bind IP (cho phép 0.0.0.0 / any / rỗng)
             IPAddress ipAddr;
-            if (!IPAddress.TryParse(bindIp, out ipAddr))
+            string ipRaw = (bindIp ?? "").Trim();
+
+            if (string.IsNullOrWhiteSpace(ipRaw) ||
+                ipRaw == "0.0.0.0" ||
+                ipRaw.Equals("any", StringComparison.OrdinalIgnoreCase) ||
+                ipRaw == "*")
+            {
                 ipAddr = IPAddress.Any;
+            }
+            else if (!IPAddress.TryParse(ipRaw, out ipAddr))
+            {
+                ipAddr = IPAddress.Any;
+                AddMessage($"[SYS] IP bind không hợp lệ '{bindIp}', dùng 0.0.0.0");
+            }
 
             IP = new IPEndPoint(ipAddr, bindPort);
 
-
             server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
-            server.Bind(IP); // gán địa chỉ ip
-            server.Listen(100); // đợi 100 đứa trong hàng chờ
+            try
+            {
+                server.Bind(IP);
+                server.Listen(100);
+
+                // Lấy endpoint thực tế sau bind (đồng bộ UI chắc chắn)
+                var ep = (IPEndPoint)server.LocalEndPoint!;
+                bindIp = ep.Address.ToString();
+                bindPort = ep.Port;
+
+                // Sync label ngay lập tức (không phụ thuộc animTimer)
+                if (InvokeRequired)
+                {
+                    BeginInvoke(new Action(() =>
+                    {
+                        lblIpVal.Text = bindIp;
+                        lblPortVal.Text = bindPort.ToString();
+                        lblTitle.Text = $"SERVER {bindIp}:{bindPort}";
+                    }));
+                }
+                else
+                {
+                    lblIpVal.Text = bindIp;
+                    lblPortVal.Text = bindPort.ToString();
+                    lblTitle.Text = $"SERVER {bindIp}:{bindPort}";
+                }
+
+                AddMessage($"[SYS] Server listening at {bindIp}:{bindPort}");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Bind/Listen failed: {ex.Message}\n\nGợi ý: dùng 0.0.0.0 để bind tất cả hoặc kiểm tra Port đang bị chiếm.",
+                    "Server Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+
+                AddMessage($"[SYS] Bind/Listen FAILED: {ex.Message}");
+                return;
+            }
+
 
             Thread Listen = new Thread(() =>
             {
@@ -514,8 +596,10 @@ namespace Server
                 try { client.Close(); } catch { }
 
                 if (name != null)
+                {
                     BroadcastRoom(room, $"SYS|LEAVE|{name}");
                     AddMessage($"[SYS] {name} đã ngắt kết nối (room='{room}')");
+                }
                 if (name != null)
                 {
                     lock (_lock)
@@ -648,7 +732,40 @@ namespace Server
             }
         }
         // them prompt
-        static string Prompt(string title, string label, string defaultValue)
+        //static string Prompt(string title, string label, string defaultValue)
+        //{
+        //    using Form form = new Form();
+        //    using Label textLabel = new Label();
+        //    using TextBox textBox = new TextBox();
+        //    using Button buttonOk = new Button();
+        //    using Button buttonCancel = new Button();
+
+        //    form.Text = title;
+        //    textLabel.Text = label;
+        //    textBox.Width = 260;
+        //    textBox.Text = defaultValue;
+
+        //    buttonOk.Text = "OK";
+        //    buttonCancel.Text = "Cancel";
+        //    buttonOk.DialogResult = DialogResult.OK;
+        //    buttonCancel.DialogResult = DialogResult.Cancel;
+
+        //    textLabel.SetBounds(10, 10, 280, 20);
+        //    textBox.SetBounds(10, 35, 280, 25);
+        //    buttonOk.SetBounds(130, 70, 75, 25);
+        //    buttonCancel.SetBounds(215, 70, 75, 25);
+
+        //    form.ClientSize = new Size(300, 110);
+        //    form.Controls.AddRange(new Control[] { textLabel, textBox, buttonOk, buttonCancel });
+        //    form.AcceptButton = buttonOk;
+        //    form.CancelButton = buttonCancel;
+        //    form.FormBorderStyle = FormBorderStyle.FixedDialog;
+        //    form.StartPosition = FormStartPosition.CenterScreen;
+
+        //    return form.ShowDialog() == DialogResult.OK ? textBox.Text.Trim() : defaultValue;
+        //}
+
+        static string PromptNeon(string title, string label, string defaultValue = "")
         {
             using Form form = new Form();
             using Label textLabel = new Label();
@@ -657,29 +774,58 @@ namespace Server
             using Button buttonCancel = new Button();
 
             form.Text = title;
+            form.StartPosition = FormStartPosition.CenterScreen;
+            form.FormBorderStyle = FormBorderStyle.FixedDialog;
+            form.MaximizeBox = false;
+            form.MinimizeBox = false;
+
+            // Cyber style
+            form.BackColor = Color.FromArgb(15, 15, 20);
+            form.ForeColor = Color.White;
+            form.Font = new Font("Consolas", 10f, FontStyle.Regular);
+
             textLabel.Text = label;
-            textBox.Width = 260;
-            textBox.Text = defaultValue;
+            textLabel.AutoSize = true;
+            textLabel.ForeColor = Color.Silver;
+            textLabel.Location = new Point(12, 12);
+
+            textBox.Width = 340;
+            textBox.Text = defaultValue ?? "";
+            textBox.BackColor = Color.FromArgb(20, 20, 25);
+            textBox.ForeColor = Color.Cyan;
+            textBox.BorderStyle = BorderStyle.FixedSingle;
+            textBox.Location = new Point(12, 40);
 
             buttonOk.Text = "OK";
-            buttonCancel.Text = "Cancel";
             buttonOk.DialogResult = DialogResult.OK;
+            buttonOk.BackColor = Color.Cyan;
+            buttonOk.ForeColor = Color.Black;
+            buttonOk.FlatStyle = FlatStyle.Flat;
+            buttonOk.FlatAppearance.BorderSize = 0;
+            buttonOk.SetBounds(196, 80, 75, 28);
+
+            buttonCancel.Text = "Cancel";
             buttonCancel.DialogResult = DialogResult.Cancel;
+            buttonCancel.BackColor = Color.FromArgb(60, 60, 70);
+            buttonCancel.ForeColor = Color.White;
+            buttonCancel.FlatStyle = FlatStyle.Flat;
+            buttonCancel.FlatAppearance.BorderSize = 0;
+            buttonCancel.SetBounds(277, 80, 75, 28);
 
-            textLabel.SetBounds(10, 10, 280, 20);
-            textBox.SetBounds(10, 35, 280, 25);
-            buttonOk.SetBounds(130, 70, 75, 25);
-            buttonCancel.SetBounds(215, 70, 75, 25);
-
-            form.ClientSize = new Size(300, 110);
+            form.ClientSize = new Size(370, 125);
             form.Controls.AddRange(new Control[] { textLabel, textBox, buttonOk, buttonCancel });
             form.AcceptButton = buttonOk;
             form.CancelButton = buttonCancel;
-            form.FormBorderStyle = FormBorderStyle.FixedDialog;
-            form.StartPosition = FormStartPosition.CenterScreen;
 
-            return form.ShowDialog() == DialogResult.OK ? textBox.Text.Trim() : defaultValue;
+            form.Shown += (_, __) =>
+            {
+                textBox.Focus();
+                textBox.SelectAll();
+            };
+
+            return form.ShowDialog() == DialogResult.OK ? textBox.Text.Trim() : "";
         }
+
         void SendUserList(Socket c)
         {
             string room = "";
