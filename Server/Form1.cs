@@ -14,7 +14,7 @@ namespace Server
 {
     public partial class Form1 : Form
     {
-        string bindIp = "0.0.0.0"; // đợi ip
+        string bindIp = "26.202.195.142"; // đợi ip
         int bindPort = 9999;
 
         // ===== Modern UI / Animation (Pastel Blue) =====
@@ -33,12 +33,16 @@ namespace Server
 
             InitializeComponent();
 
+            this.AcceptButton = null;
+            txbMessage.KeyDown += txbMessage_KeyDown;
+
+
             ApplyModernUi();
             this.Opacity = 0;
             this.Shown += (_, __) => StartFadeIn();
 
             // hỏi IP/Port khi mở server
-            bindIp = Prompt("ChatPhoBo Server", "Nhập IP bind (0.0.0.0 = tất cả):", "0.0.0.0");
+            bindIp = Prompt("ChatPhoBo Server", "Nhập IP bind (26.202.195.142 = tất cả):", "26.202.195.142");
             string p = Prompt("ChatPhoBo Server", "Nhập Port:", "9999");
             if (!int.TryParse(p, out bindPort)) bindPort = 9999;
 
@@ -60,14 +64,28 @@ namespace Server
         /// <param name="e"></param>
         private void btnSend_Click(object sender, EventArgs e)
         {
-            foreach (Socket item in clientList)
-            {
-                Send(item);
-            }
-            AddMessage($"Server: {txbMessage.Text}");
+            string text = txbMessage.Text;
+            if (string.IsNullOrWhiteSpace(text)) return;
+
+            // Gửi cho tất cả client theo format client hiểu
+            Broadcast($"FROM|Server|{text}");
+
+            // Log trên server
+            AddMessage($"Server: {text}");
             txbMessage.Clear();
 
         }
+
+        private void txbMessage_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter && !e.Shift)
+            {
+                e.SuppressKeyPress = true;  // không xuống dòng
+                btnSend.PerformClick();     // gọi gửi
+            }
+            // Shift+Enter => cho xuống dòng (nếu txbMessage.Multiline = true)
+        }
+
 
         IPEndPoint IP;
         Socket server;

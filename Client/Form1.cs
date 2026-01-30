@@ -37,6 +37,15 @@ namespace server
         {
             InitializeComponent();
 
+            // Tắt AcceptButton để Enter không tự bấm btnSend khi đang ở ô khác (ví dụ ô phòng)
+            this.AcceptButton = null;
+
+            // Bắt Enter/Shift+Enter cho chat chung + chat riêng + ô phòng
+            txbMessage.KeyDown += txbMessage_KeyDown;
+            txbPrivate.KeyDown += txbPrivate_KeyDown;
+            txbRoomId.KeyDown += txbRoomId_KeyDown;
+
+
             pmTimer = new System.Windows.Forms.Timer();
             pmTimer.Interval = 1000; // 1 giây
             pmTimer.Tick += (s, e) =>
@@ -109,6 +118,35 @@ namespace server
 
             SendString(server, $"MSG|{to}|{text}");
             AddMessage($"Me -> {to}: {text}");
+            txbMessage.Clear();
+
+        }
+
+        private void txbMessage_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter && !e.Shift)
+            {
+                e.SuppressKeyPress = true;
+                btnSend.PerformClick();
+            }
+            // Shift+Enter => cho xuống dòng (Multiline phải = true)
+        }
+
+        private void txbPrivate_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter && !e.Shift)
+            {
+                e.SuppressKeyPress = true;
+                btnSendPrivate.PerformClick();
+            }
+        }
+
+        private void txbRoomId_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                e.SuppressKeyPress = true; // Enter không join phòng
+            }
         }
 
 
@@ -385,7 +423,7 @@ namespace server
 
             // LƯU Ý: bạn đang Clear ở đây => nhận tin cũng bị clear ô nhập
             // Nếu bạn chỉ muốn clear khi nhấn Send, hãy comment dòng dưới:
-            txbMessage.Clear();
+            //txbMessage.Clear();
         }
         /// <summary>
         /// phân mảnh
