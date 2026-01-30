@@ -364,7 +364,9 @@ namespace Server
                                 continue;
                             }
 
-                            SendString(target, $"FROM|{from}|{text}");
+                            SendString(target, $"PM|{from}|{text}"); // phòng là FORM riêng là PM
+
+
                         }
                     }
 

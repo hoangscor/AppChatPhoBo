@@ -37,6 +37,10 @@
             lblTen = new Label();
             lblRoom = new Label();
             lstUsers = new ListBox();
+            lblPrivateWith = new Label();
+            lsvPrivate = new ListView();
+            txbPrivate = new TextBox();
+            btnSendPrivate = new Button();
             SuspendLayout();
             // 
             // lsvMessage
@@ -53,13 +57,13 @@
             txbMessage.Location = new Point(38, 382);
             txbMessage.Multiline = true;
             txbMessage.Name = "txbMessage";
-            txbMessage.Size = new Size(630, 56);
+            txbMessage.Size = new Size(630, 77);
             txbMessage.TabIndex = 1;
             // 
             // btnSend
             // 
             btnSend.BackColor = SystemColors.ActiveCaption;
-            btnSend.Location = new Point(677, 382);
+            btnSend.Location = new Point(677, 396);
             btnSend.Name = "btnSend";
             btnSend.Size = new Size(94, 56);
             btnSend.TabIndex = 2;
@@ -119,16 +123,57 @@
             lstUsers.FormattingEnabled = true;
             lstUsers.Location = new Point(953, 67);
             lstUsers.Name = "lstUsers";
-            lstUsers.Size = new Size(336, 304);
+            lstUsers.Size = new Size(336, 144);
             lstUsers.TabIndex = 8;
             lstUsers.SelectedIndexChanged += lstUsers_SelectedIndexChanged;
+            // 
+            // lblPrivateWith
+            // 
+            lblPrivateWith.AutoSize = true;
+            lblPrivateWith.Location = new Point(953, 242);
+            lblPrivateWith.Name = "lblPrivateWith";
+            lblPrivateWith.Size = new Size(162, 20);
+            lblPrivateWith.TabIndex = 9;
+            lblPrivateWith.Text = "Chat riêng: (chưa chọn)";
+            // 
+            // lsvPrivate
+            // 
+            lsvPrivate.FullRowSelect = true;
+            lsvPrivate.Location = new Point(953, 265);
+            lsvPrivate.Name = "lsvPrivate";
+            lsvPrivate.Size = new Size(336, 130);
+            lsvPrivate.TabIndex = 10;
+            lsvPrivate.UseCompatibleStateImageBehavior = false;
+            lsvPrivate.View = View.List;
+            // 
+            // txbPrivate
+            // 
+            txbPrivate.Location = new Point(953, 411);
+            txbPrivate.Multiline = true;
+            txbPrivate.Name = "txbPrivate";
+            txbPrivate.Size = new Size(256, 41);
+            txbPrivate.TabIndex = 11;
+            // 
+            // btnSendPrivate
+            // 
+            btnSendPrivate.Location = new Point(1215, 411);
+            btnSendPrivate.Name = "btnSendPrivate";
+            btnSendPrivate.Size = new Size(74, 41);
+            btnSendPrivate.TabIndex = 12;
+            btnSendPrivate.Text = "Send";
+            btnSendPrivate.UseVisualStyleBackColor = true;
+            btnSendPrivate.Click += btnSendPrivate_Click;
             // 
             // Form1
             // 
             AcceptButton = btnSend;
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1350, 495);
+            ClientSize = new Size(1449, 648);
+            Controls.Add(btnSendPrivate);
+            Controls.Add(txbPrivate);
+            Controls.Add(lsvPrivate);
+            Controls.Add(lblPrivateWith);
             Controls.Add(lstUsers);
             Controls.Add(lblRoom);
             Controls.Add(lblTen);
@@ -159,5 +204,9 @@
         private Label lblTen;
         private Label lblRoom;
         private ListBox lstUsers;
+        private Label lblPrivateWith;
+        private ListView lsvPrivate;
+        private TextBox txbPrivate;
+        private Button btnSendPrivate;
     }
 }

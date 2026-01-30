@@ -97,6 +97,7 @@ namespace server
         string myName = ""; // tên của client
 
         HashSet<string> acceptedPeers = new HashSet<string>(); // ai đã accept để nhắn riêng
+        string privatePeer = ""; // đang chat riêng với ai (tên)
 
 
         /// <summary>
@@ -224,6 +225,35 @@ namespace server
                     {
                         AddMessage($"{p[1]}: {p[2]}");
                     }
+                    else if (p.Length == 3 && p[0] == "PM")
+                    {
+                        string from = p[1];
+                        string text = p[2];
+
+                        // chỉ hiện vào lsvPrivate nếu đang chọn đúng người đó
+                        BeginInvoke(new Action(() =>
+                        {
+                            if (privatePeer == from)
+                            {
+                                lsvPrivate.Items.Add(new ListViewItem($"{from}: {text}"));
+                                lsvPrivate.EnsureVisible(lsvPrivate.Items.Count - 1);
+                            }
+                            else
+                            {
+                                // không muốn lẫn chat chung => chỉ báo nhẹ ở chat chung hoặc title
+                                // Bạn có thể chọn 1 trong 2 cách:
+
+                                // Cách A: báo ở chat chung (chỉ 1 dòng thông báo)
+                                AddMessage($"[PM] {from}: (tin mới) hãy chọn {from} để xem");
+
+                                // Cách B: đổi title form (nếu bạn muốn)
+                                // this.Text = $"{myName} (PM mới từ {from})";
+                            }
+                        }));
+
+                        continue;
+                    }
+
                     else
                     {
                         AddMessage(msg);
@@ -431,7 +461,22 @@ namespace server
 
         private void lstUsers_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (lstUsers.SelectedItem == null) return;
 
+            string name = lstUsers.SelectedItem.ToString();
+            if (string.IsNullOrWhiteSpace(name)) return;
+
+            privatePeer = name;
+            lblPrivateWith.Text = $"Chat riêng: {privatePeer}";
+
+            // Clear khung chat riêng để thấy rõ đang là cuộc chat với ai
+            lsvPrivate.Items.Clear();
+
+            // Nếu chưa accept thì nhắc người dùng
+            if (!acceptedPeers.Contains(privatePeer))
+            {
+                lsvPrivate.Items.Add(new ListViewItem($"[SYS] Chưa được phép nhắn riêng với {privatePeer}. Double-click để gửi yêu cầu."));
+            }
         }
         // ui nha 
         // ===== Modern UI helpers =====
@@ -594,6 +639,30 @@ namespace server
                 ?.SetValue(c, true, null);
         }
 
+        private void btnSendPrivate_Click(object sender, EventArgs e)
+        {
+            string text = txbPrivate.Text.Trim();
+            if (string.IsNullOrEmpty(text)) return;
+
+            if (string.IsNullOrWhiteSpace(privatePeer))
+            {
+                MessageBox.Show("Hãy chọn 1 người trong danh sách Online để nhắn riêng.", "ChatPhoBo");
+                return;
+            }
+
+            if (!acceptedPeers.Contains(privatePeer))
+            {
+                lsvPrivate.Items.Add(new ListViewItem($"[SYS] {privatePeer} chưa chấp nhận bạn. Double-click tên để gửi yêu cầu."));
+                return;
+            }
+
+            SendString(server, $"MSG|{privatePeer}|{text}");
+
+            lsvPrivate.Items.Add(new ListViewItem($"Me -> {privatePeer}: {text}"));
+            lsvPrivate.EnsureVisible(lsvPrivate.Items.Count - 1);
+
+            txbPrivate.Clear();
+        }
     }
 
 }
