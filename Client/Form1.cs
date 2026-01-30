@@ -29,6 +29,17 @@ namespace server
         {
             InitializeComponent();
 
+            pmTimer = new System.Windows.Forms.Timer();
+            pmTimer.Interval = 1000; // 1 giây
+            pmTimer.Tick += (s, e) =>
+            {
+                if (!pmRunning) return;
+                var elapsed = DateTime.Now - privateStartAt;
+                lblPrivateTimer.Text = elapsed.ToString(@"hh\:mm\:ss");
+            };
+            lblPrivateTimer.Text = "00:00:00"; 
+            btnClosePrivate.Enabled = false; // chưa có chat riêng thì phải chịuuuuu
+
             ApplyModernUi();
             this.Opacity = 0;
             this.Shown += (_, __) => StartFadeIn();
@@ -99,6 +110,9 @@ namespace server
         HashSet<string> acceptedPeers = new HashSet<string>(); // ai đã accept để nhắn riêng
         string privatePeer = ""; // đang chat riêng với ai (tên)
 
+        DateTime privateStartAt;              // thời điểm bắt đầu chat riêng
+        System.Windows.Forms.Timer pmTimer;   // timer cập nhật đồng hồ
+        bool pmRunning = false;
 
         /// <summary>
         /// kết nối tới server
@@ -166,6 +180,34 @@ namespace server
                         UpdateUserList(csv);
                         continue;
                     }
+                    /// (1.5) Server báo kết thúc chat riêng: SYS|PMEND|other,seconds
+                    /// 
+                    if (p.Length >= 2 && p[0] == "SYS" && p[1] == "PMEND")
+                    {
+                        string payload = (p.Length == 3) ? p[2] : "";
+                        // payload dạng: other,seconds
+                        var arr = payload.Split(',', 2);
+                        string other = arr.Length > 0 ? arr[0].Trim() : "unknown";
+                        int seconds = 0;
+                        if (arr.Length == 2) int.TryParse(arr[1], out seconds);
+
+                        BeginInvoke(new Action(() =>
+                        {
+                            AddMessage($"[SYS] Chat riêng với {other} đã kết thúc. Thời gian: {TimeSpan.FromSeconds(seconds):hh\\:mm\\:ss}");
+
+                            // nếu đang mở đúng cuộc chat riêng đó thì đóng UI + dừng timer
+                            if (privatePeer == other)
+                            {
+                                StopPrivateChat(notifyServer: false);
+                            }
+
+                            // vì server đã remove allow => client cũng remove để lần sau phải request lại
+                            acceptedPeers.Remove(other);
+                        }));
+
+                        continue;
+                    }
+
 
                     // (2) Server chuyển yêu cầu nhắn riêng: REQ|fromName
                     if (msg.StartsWith("REQ|"))
@@ -185,6 +227,8 @@ namespace server
                             {
                                 SendString(server, $"RESP|{from}|ACCEPT");
                                 acceptedPeers.Add(from);
+                                StartPrivateChat(from); // tự chọn peer
+
                                 AddMessage($"[SYS] Bạn đã chấp nhận {from}. Bây giờ có thể nhắn riêng.");
                             }
                             else
@@ -206,6 +250,12 @@ namespace server
                         if (decision == "ACCEPT")
                         {
                             acceptedPeers.Add(other);
+                            BeginInvoke(new Action(() =>
+                            {
+                                // tự chọn người đó làm privatePeer và bắt đầu đồng hồ
+                                StartPrivateChat(other);
+                            }));
+
                             AddMessage($"[SYS] {other} đã CHẤP NHẬN. Bạn có thể nhắn riêng bằng @ {other}");
                         }
                         else
@@ -663,6 +713,72 @@ namespace server
 
             txbPrivate.Clear();
         }
+
+        private void btnClosePrivate_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(privatePeer)) return;
+
+            var rs = MessageBox.Show(
+                $"Hủy chat riêng với {privatePeer}?",
+                "ChatPhoBo",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
+
+            if (rs == DialogResult.Yes)
+            {
+                StopPrivateChat(notifyServer: true);
+            }
+        }
+        /// <summary>
+        /// BẤM GIỜ CHAT RIÊNG
+        /// </summary>
+        /// <param name="peer"></param>
+        private void StartPrivateChat(string peer)
+        {
+            privatePeer = peer;
+            lblPrivateWith.Text = $"Chat riêng: {privatePeer}";
+            lsvPrivate.Items.Clear();
+
+            privateStartAt = DateTime.Now;
+            pmRunning = true;
+            pmTimer.Start();
+
+            lblPrivateTimer.Text = "00:00:00";
+            btnClosePrivate.Enabled = true;
+
+            lsvPrivate.Items.Add(new ListViewItem($"[SYS] Bắt đầu chat riêng với {privatePeer}."));
+            lsvPrivate.EnsureVisible(lsvPrivate.Items.Count - 1);
+        }
+
+        private void StopPrivateChat(bool notifyServer)
+        {
+            if (string.IsNullOrWhiteSpace(privatePeer))
+                return;
+
+            pmTimer.Stop();
+            pmRunning = false;
+
+            var elapsed = DateTime.Now - privateStartAt;
+            int seconds = (int)elapsed.TotalSeconds;
+
+            string peer = privatePeer; // giữ lại trước khi clear
+
+            // reset UI
+            privatePeer = "";
+            lblPrivateWith.Text = "Chat riêng: (chưa chọn)";
+            lblPrivateTimer.Text = "00:00:00";
+            btnClosePrivate.Enabled = false;
+
+            lsvPrivate.Items.Clear();
+            txbPrivate.Clear();
+
+            // báo server (nếu user bấm X)
+            if (notifyServer)
+            {
+                SendString(server, $"PMEND|{peer}|{seconds}");
+            }
+        }
+
     }
 
 }

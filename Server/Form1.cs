@@ -308,6 +308,43 @@ namespace Server
 
                         continue;
                     }
+                    /// ====== (3) Kết thúc chat riêng: PMEND|toName|seconds ======
+                    if (msg.StartsWith("PMEND|"))
+                    {
+                        // PMEND|toName|seconds
+                        var q = msg.Split('|', 3);
+                        if (q.Length < 3) continue;
+
+                        string toName = q[1].Trim();
+                        int seconds = 0;
+                        int.TryParse(q[2], out seconds);
+
+                        string fromName;
+                        lock (_lock)
+                            fromName = socketToName.TryGetValue(client, out var n) ? n : "unknown";
+
+                        // log trên server
+                        AddMessage($"[PMEND] {fromName} kết thúc chat riêng với {toName} - {TimeSpan.FromSeconds(seconds):hh\\:mm\\:ss}");
+
+                        // (tuỳ chọn) hủy quyền nhắn riêng 2 chiều
+                        lock (_lock)
+                        {
+                            if (allow.TryGetValue(fromName, out var s1)) s1.Remove(toName);
+                            if (allow.TryGetValue(toName, out var s2)) s2.Remove(fromName);
+                        }
+
+                        // gửi thông báo cho cả 2 phía (dùng SYS|PMEND|other,seconds để không phá Split('|',3) bên client)
+                        Socket target = null;
+                        lock (_lock) nameToSocket.TryGetValue(toName, out target);
+
+                        try { SendString(client, $"SYS|PMEND|{toName},{seconds}"); } catch { }
+                        if (target != null)
+                        {
+                            try { SendString(target, $"SYS|PMEND|{fromName},{seconds}"); } catch { }
+                        }
+
+                        continue;
+                    }
 
 
                     // ====== (2) Tin nhắn: MSG|to|text ======

@@ -41,6 +41,8 @@
             lsvPrivate = new ListView();
             txbPrivate = new TextBox();
             btnSendPrivate = new Button();
+            lblPrivateTimer = new Label();
+            btnClosePrivate = new Button();
             SuspendLayout();
             // 
             // lsvMessage
@@ -164,12 +166,33 @@
             btnSendPrivate.UseVisualStyleBackColor = true;
             btnSendPrivate.Click += btnSendPrivate_Click;
             // 
+            // lblPrivateTimer
+            // 
+            lblPrivateTimer.AutoSize = true;
+            lblPrivateTimer.Location = new Point(1226, 242);
+            lblPrivateTimer.Name = "lblPrivateTimer";
+            lblPrivateTimer.Size = new Size(63, 20);
+            lblPrivateTimer.TabIndex = 13;
+            lblPrivateTimer.Text = "00:00:00";
+            // 
+            // btnClosePrivate
+            // 
+            btnClosePrivate.Location = new Point(1295, 265);
+            btnClosePrivate.Name = "btnClosePrivate";
+            btnClosePrivate.Size = new Size(39, 29);
+            btnClosePrivate.TabIndex = 14;
+            btnClosePrivate.Text = "X";
+            btnClosePrivate.UseVisualStyleBackColor = true;
+            btnClosePrivate.Click += btnClosePrivate_Click;
+            // 
             // Form1
             // 
             AcceptButton = btnSend;
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1449, 648);
+            Controls.Add(btnClosePrivate);
+            Controls.Add(lblPrivateTimer);
             Controls.Add(btnSendPrivate);
             Controls.Add(txbPrivate);
             Controls.Add(lsvPrivate);
@@ -208,5 +231,7 @@
         private ListView lsvPrivate;
         private TextBox txbPrivate;
         private Button btnSendPrivate;
+        private Label lblPrivateTimer;
+        private Button btnClosePrivate;
     }
 }
