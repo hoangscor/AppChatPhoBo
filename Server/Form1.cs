@@ -83,7 +83,7 @@ namespace Server
         {
             string text = txbMessage.Text;
             if (string.IsNullOrWhiteSpace(text)) return;
-
+           
             // Gửi cho tất cả client theo format client hiểu
             Broadcast($"FROM|Server|{text}");
 
@@ -140,6 +140,7 @@ namespace Server
             clientList = new List<Socket>();
 
             // Parse bind IP (cho phép 0.0.0.0 / any / rỗng)
+
             IPAddress ipAddr;
             string ipRaw = (bindIp ?? "").Trim();
 
@@ -163,7 +164,7 @@ namespace Server
             try
             {
                 server.Bind(IP);
-                server.Listen(100);
+                server.Listen(100); // lắng nghe 100 client lận 
 
                 // Lấy endpoint thực tế sau bind (đồng bộ UI chắc chắn)
                 var ep = (IPEndPoint)server.LocalEndPoint!;
@@ -521,11 +522,11 @@ namespace Server
                         from = socketToName.TryGetValue(client, out var n) ? n : "unknown";
                         fromRoom = socketToRoom.TryGetValue(client, out var r) ? r : "";
                     }
-
+                    /// server gửi đi
                     // Broadcast trong phòng
                     if (to == "*")
                     {
-                        BroadcastRoom(fromRoom, $"FROM|{from}|{text}");
+                        BroadcastRoom(fromRoom, $"FROM|{from}|{text}"); 
                     }
                     else
                     {

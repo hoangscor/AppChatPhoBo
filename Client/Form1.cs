@@ -54,7 +54,7 @@ namespace server
                 var elapsed = DateTime.Now - privateStartAt;
                 lblPrivateTimer.Text = elapsed.ToString(@"hh\:mm\:ss");
             };
-            lblPrivateTimer.Text = "00:00:00"; 
+            lblPrivateTimer.Text = "00:00:00";
             btnClosePrivate.Enabled = false; // chưa có chat riêng thì phải chịuuuuu
 
             ApplyModernUi();
@@ -113,7 +113,7 @@ namespace server
 
             string to = "*";
             string text = input;
-
+            /// nhan riêng
             // @tenClient noi_dung -> gửi riêng
             if (input.StartsWith("@"))
             {
@@ -316,7 +316,8 @@ namespace server
                                 "ChatPhoBo",
                                 MessageBoxButtons.YesNo,
                                 MessageBoxIcon.Question);
-
+                            /// đồng ý yêu cầu 
+                            /// 
                             if (rs == DialogResult.Yes)
                             {
                                 SendString(server, $"RESP|{from}|ACCEPT");
@@ -650,7 +651,7 @@ namespace server
 
 
             if (string.IsNullOrWhiteSpace(toName)) return;
-
+            /// xin phép nhắn riêng
             // gửi yêu cầu nhắn riêng tới server
             SendString(server, $"REQ|{toName}");
             AddMessage($"[SYS] Đã gửi yêu cầu nhắn riêng tới {toName}. Chờ họ chấp nhận...");
@@ -1089,6 +1090,10 @@ namespace server
             };
         }
 
+        private void txbRoomId_TextChanged_1(object sender, EventArgs e)
+        {
+
+        }
     }
 
 }

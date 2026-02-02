@@ -132,6 +132,7 @@
             txbRoomId.Name = "txbRoomId";
             txbRoomId.Size = new Size(170, 29);
             txbRoomId.TabIndex = 4;
+            txbRoomId.TextChanged += txbRoomId_TextChanged_1;
             // 
             // btnJoinRoom
             // 
